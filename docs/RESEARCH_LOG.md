@@ -76,3 +76,19 @@ as well as successful results; link experiment IDs and decisions when relevant.
 - Next step: Define and implement a small, leakage-aware feature engine with
   explicit feature availability and deterministic rolling-window tests. This
   milestone has not been started.
+
+## 2026-09-30 — Core trailing price features
+
+- Research question: Can price measurements be computed per ticker without using
+  observations beyond their session date?
+- Hypothesis: Trailing shifts/windows with explicit warm-ups should be invariant
+  to appending future observations to a fixed historical data vintage.
+- Work performed: Established an 81-test clean baseline; added returns, rolling
+  close drawdowns, high/low distances, and sample-standard-deviation price z-scores.
+  Added shared validation, ticker isolation, and a configurable feature builder.
+- Result: 27 deterministic feature tests pass with warnings treated as errors,
+  including exact prefix invariance at four cutoffs. No strategy was evaluated.
+- Interpretation: Core price measurements satisfy the tested causal contract.
+- Limitations: Observed-bar windows are not exchange-calendar completeness checks;
+  provider adjustments remain subject to the documented data-vintage limitation.
+- Next step: Add Wilder RSI/ATR, realized volatility, and volume measurements.
