@@ -45,6 +45,32 @@ research. NumPy provides array validation and numerical operations. Polars is
 reserved for workloads such as lazy Parquet scans when they offer a real benefit.
 Avoid repeated conversions; use PyArrow for Parquet persistence and metadata.
 
+## ADR-005 — Explicit adjustment and validation contract
+
+Date: 2026-09-30. Status: Accepted.
+
+Decision: Request daily yfinance auto-adjusted OHLC and retain provider-reported
+volume. Reject missing or malformed bars, remove only identical duplicates, and
+exclude today's potentially incomplete US session. Preserve exchange session dates.
+
+Reason: Avoid implicit library defaults, hidden filling, and accidental inclusion
+of partial daily bars. Current adjusted history is not point-in-time data; later
+research must account for corporate-action revisions and signal availability.
+
+## ADR-006 — Explicit, atomic per-symbol cache snapshots
+
+Date: 2026-09-30. Status: Accepted.
+
+Decision: Existing snapshots load offline until explicitly refreshed. Save request
+provenance in Parquet metadata and replace an entire symbol history atomically.
+Explicit date requests outside known coverage raise instead of returning a silently
+truncated history. Download symbols sequentially and concatenate cleaned data once.
+
+Reason: Preserve failed-refresh recovery and keep adjustment vintages consistent.
+Snapshots are convenient local caches, not immutable experiment archives; users
+must preserve experiment inputs before refreshing. Sequential requests bound traffic
+and avoid cross-symbol date padding; optimize concurrency only with evidence.
+
 ## ADR template
 
 - ID and title:

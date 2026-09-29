@@ -45,3 +45,34 @@ as well as successful results; link experiment IDs and decisions when relevant.
 - Limitations: US session-date cutoff; today's session excluded. No calendar-gap
   audit, delisting history guarantee, or point-in-time adjustment data.
 - Next step: Implement persistent Parquet caching and multi-symbol loading.
+
+## 2026-09-30 — Historical market-data layer completed
+
+- Research question: Can validated multi-symbol history be reused offline with
+  explicit provenance and safe refresh behavior?
+- Hypothesis: Independent, atomic Parquet snapshots can support reproducible local
+  research without automatically changing historical inputs between runs.
+- Work performed: Added per-symbol Parquet storage with embedded provenance,
+  offline cache reads, explicit refresh, request/subset coverage checks, and
+  multi-symbol loading. Documented the API, adjustment convention, and limitations.
+  Added a fixed test clock and mocked network, storage, and refresh failure tests.
+- Result: `python -m pytest -q -W error --tb=short`: 81 passed. `python -m pip check`:
+  no broken requirements. A separate live smoke download returned 2,512 rows each
+  for AAPL, MSFT, NVDA, AMZN, GOOGL, and SPY (15,072 total), spanning 2016-09-29
+  through 2026-09-28. All 15,072 rows subsequently loaded from cache with the
+  provider call patched to raise on any network attempt. Generated market files
+  remain local and ignored by Git.
+- Interpretation: Structural validation, persistence, failure recovery, and the
+  live provider integration are working. No signal quality or investment
+  performance has been measured.
+- Limitations: Provider corrections and current adjustments are not point-in-time
+  data. No calendar-completeness audit or survivorship-free universe. Explicit
+  refresh replaces the previous snapshot; preserve experiment datasets separately.
+  Existing environment pins target Windows/Python 3.14 rather than a portable lock.
+- Issues encountered: Windows sandbox restrictions initially blocked pytest's
+  temporary directory and the live Yahoo connection; reruns with the required
+  access succeeded. A saved-subset coverage issue was caught in review and fixed
+  with a regression test before completion.
+- Next step: Define and implement a small, leakage-aware feature engine with
+  explicit feature availability and deterministic rolling-window tests. This
+  milestone has not been started.

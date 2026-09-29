@@ -33,8 +33,8 @@ Dashboard / alerts
 
 ## Current status
 
-Research foundation and tested historical daily ingestion are implemented;
-Parquet caching is next. The initial test universe is AAPL, MSFT, NVDA, AMZN,
+Research foundation, validated daily OHLCV ingestion, and Parquet caching are
+implemented with deterministic tests. The initial test universe is AAPL, MSFT, NVDA, AMZN,
 GOOGL, and SPY (planned market benchmark). Strategy modules remain placeholders.
 
 Core stack: Python, NumPy, pandas, PyArrow/Parquet, yfinance, and pytest. Polars
@@ -50,3 +50,29 @@ Numba, scikit-learn/XGBoost, and DuckDB when needed.
 - [Roadmap](ROADMAP.md), [research log](docs/RESEARCH_LOG.md),
   [decisions](docs/DECISIONS.md), and [experiments](docs/EXPERIMENTS.md).
 - [AGENTS.md](AGENTS.md): persistent project instructions.
+
+## Getting started
+
+The checked-in dependency snapshot comes from the existing Windows/Python 3.14
+environment and includes platform-specific packages. It is not yet a portable lockfile.
+No unrelated dependency versions were changed for the data layer.
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python -m pytest -q -W error
+```
+
+```python
+from src.data import get_history, get_histories
+
+aapl = get_history("AAPL")       # Download ten years on first use; otherwise offline cache.
+universe = get_histories()        # AAPL, MSFT, NVDA, AMZN, GOOGL, SPY.
+updated = get_history("AAPL", refresh=True)
+```
+
+Generated files live in `data/market/` and are excluded from Git. Prices are adjusted;
+missing required values raise and are never filled. Existing caches do not refresh
+automatically. See [the market-data API and limitations](docs/MARKET_DATA.md) for
+date ranges, provenance, storage behavior, and the optional live smoke check.

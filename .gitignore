@@ -216,3 +216,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Generated market snapshots and temporary/provider files; keep directory layout.
+/data/*
+!/data/.gitkeep
+!/data/market/
+/data/market/*
+!/data/market/.gitkeep
