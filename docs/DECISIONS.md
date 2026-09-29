@@ -113,6 +113,45 @@ when calendars differ. Context must retain benchmark history before stock incept
 The date-based convention assumes both instruments' bars are available at the
 calculation time; cross-market publication timing needs additional metadata.
 
+## ADR-010 — Prior-only ticker-relative percentile candidates
+
+Date: 2026-09-30. Status: Accepted.
+
+Decision: Define DipSignal V1 components using the lower empirical tail of each
+ticker's own drawdown, price z-score, low-distance, and SPY-relative-return history.
+Shift each feature by one observed bar before computing a linear-interpolated
+rolling quantile. Defaults are 252 prior bar positions, at least 126 valid values
+per feature, and quantile 0.20. Missing slots do not compress the window.
+
+Reason: Different equities have different feature distributions. A transparent
+self-relative hypothesis avoids immediately optimizing fixed technical-analysis
+cutoffs and prevents the current observation from influencing its own threshold.
+
+Consequences and limitations: These defaults are not optimality claims. Features
+are correlated; component counts are not probabilities or independent confirmations.
+Inclusive ties and changing distributions mean activation frequency need not equal
+the nominal quantile. Data-vintage and survivorship limitations remain. Predictive
+quality requires a separately specified empirical evaluation, not threshold tuning
+to make descriptive frequencies look attractive.
+
+## ADR-011 — Complete-row eligibility and observed condition entries
+
+Date: 2026-09-30. Status: Accepted.
+
+Decision: Require all four current features and all four historical thresholds
+before a condition can be true, plus at least three active components by default.
+Keep separate count, readiness, condition, and per-ticker rising-edge event outputs.
+
+Reason: Missing benchmark/history must not masquerade as evidence of a dip. Separate
+conditions and entries expose persistent depression without counting every day as
+a fresh discovery or introducing a backtester's position/cooldown state.
+
+Consequences and limitations: Incomplete rows are false conditions and break runs;
+the next qualifying row is a new observed entry, not necessarily a new economic
+episode. Absent sessions insert no rows. Entries are not statistically independent
+trades, and no execution or outcome is implied. Availability is after the current
+close; a later backtest must generally execute at t+1 or later.
+
 ## ADR template
 
 - ID and title:

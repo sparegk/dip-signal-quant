@@ -10,7 +10,8 @@ No forward outcomes, scores, exits, positions, or trading execution are calculat
 
 ## Prior-only historical thresholds
 
-Defaults are `lookback=252`, `min_history=126`, and `quantile=0.20`. Each feature
+Defaults are `lookback=252`, `min_history=126`, `quantile=0.20`, and
+`required_components=3`. Each feature
 uses at most the previous 252 observed bar positions of its own ticker, ending
 at t-1. Within that window, NaNs are excluded from the quantile sample but still
 occupy bar positions. Require at least 126 valid prior values per feature;
@@ -62,7 +63,7 @@ or NaN; infinities, booleans, numeric strings, and complex values raise.
 NaNs from feature warm-up, zero-variance calculations, or unmatched benchmark
 dates are valid missing measurements. Their components are false.
 `dip_ready_v1` is true only if **all four current values and all four thresholds**
-are available. Candidate generation will require this readiness in addition to
+are available. Candidate generation requires this readiness in addition to
 the component count, even when fewer than four active components are requested.
 No missing feature or benchmark value is filled.
 
@@ -71,20 +72,101 @@ symbols and timezone-naive midnight session dates. Malformed input is rejected,
 not silently sorted, deduplicated, or coerced. Windows count observed bars, not
 calendar days, and do not audit missing exchange sessions.
 
+## Count, condition, and event
+
+`dip_component_count` is the integer sum of the four flags (0 through 4).
+It retains available component information even on incomplete rows; a count
+alone is not a candidate classification.
+
+```text
+dip_condition_v1 = dip_ready_v1 AND (dip_component_count >= required_components)
+dip_event_v1 = dip_condition_v1 AND NOT previous_same_ticker_condition
+```
+
+`required_components` must be an integer from 1 through 4, excluding booleans.
+The default is 3, without optimization. All four measurements and thresholds
+must still be available even if only one active component is requested.
+
+Conditions mark every qualifying observation. Events mark only an entry into
+the condition, treating the first previous condition as false. For conditions
+`F F T T T F T T`, events are `F F T F F F T F`. Warm-up cannot fire; the first
+eligible qualifying row can. Consecutive means consecutive **observed rows of
+the same ticker**, not consecutive calendar dates. Missing measurement/threshold
+rows have condition=false and break a run: a subsequent eligible true row is a
+new observed entry, not evidence of a distinct economic dip. Entirely absent
+sessions do not insert false rows. Event de-duplication does not establish
+statistically independent samples. No cooldown, holdings, or position state exists.
+
 ## API and availability
 
 - `compute_historical_thresholds(...)`: identity plus four prior-only thresholds.
 - `compute_dip_components(...)`: identity, thresholds, four boolean components,
   and the complete-row `dip_ready_v1` flag.
+- `detect_dip_events(...)`: identity plus boolean rising-edge events; requires
+  a defined boolean `dip_condition_v1` column, never truthy strings/numbers.
+- `build_signals(...)`: preserves all feature/input columns and appends four
+  thresholds, four components, readiness, count, condition, and event (12 columns).
 
-Both APIs preserve nested source provenance without mutating inputs, return a
-fresh RangeIndex in canonical observation order, and record configuration in
-`attrs["signal_parameters"]`. pandas performs rolling quantiles independently
-by ticker; NumPy checks numerical validity. No new dependency is introduced.
+All APIs preserve nested source provenance without mutating inputs and return a
+fresh RangeIndex in canonical observation order. Percentile/component/build APIs
+record configuration in `attrs["signal_parameters"]`; event detection preserves
+the supplied metadata. The builder refuses to overwrite existing output columns.
+pandas performs rolling quantiles and event shifts independently by ticker;
+NumPy checks numerical validity. Only a per-ticker loop is needed, with compiled
+rolling operations inside each group, not Python loops over observations. No
+Polars conversion or new dependency is justified for this daily-data workload.
+
+Example using existing local snapshots only (raises if they are unavailable):
+
+```python
+from src.data import DEFAULT_CACHE_DIR, load_parquet
+from src.features import build_features
+from src.signals import build_signals
+
+aapl = load_parquet(DEFAULT_CACHE_DIR / "AAPL.parquet", ticker="AAPL")
+spy = load_parquet(DEFAULT_CACHE_DIR / "SPY.parquet", ticker="SPY")
+features = build_features(aapl, benchmark=spy)
+candidates = build_signals(features)
+events = candidates.loc[candidates["dip_event_v1"]]
+```
+
+For multiple stocks, supply their combined canonical feature frame with explicit
+SPY benchmark features. Every distribution and previous-condition shift stays
+inside the ticker boundary; adding another ticker cannot change existing outputs.
 
 Components can use feature values from the current completed bar, so they become
 available after the close. Subsequent execution generally cannot precede t+1;
 no execution model is implemented. Provider revisions and adjusted-data vintage
 bias remain despite computationally causal windows.
 
-Condition/event generation is the next implementation step in this milestone.
+## Validation and limitations
+
+Deterministic coverage includes exact interpolated thresholds, separate current
+outlier-exclusion tests for all four features, warm-up and missingness, malformed
+input/configuration, all component counts/cutoffs, and explicit event sequences.
+Fourteen prefix tests use default/custom settings at seven cutoffs, both append
+future observations and drastically change their values, and compare every
+historical threshold/flag/count/condition/event exactly. Cross-ticker tests add
+and alter extreme histories without changing the calm ticker. An OHLCV-to-feature-
+to-signal regression also verifies prefix invariance and the combined warm-up.
+
+With complete nondegenerate default features, the first eligible observation is
+bar 186: 59 drawdown warm-up rows plus 126 prior valid drawdown measurements.
+Undefined z-scores or missing benchmark endpoints can delay or interrupt readiness.
+
+An offline fixed-default AAPL check with SPY context on 2026-09-30 used 2,512
+observations (2016-09-29 through 2026-09-28): 2,327 eligible rows, 376 condition
+days, and 117 events. Conditions represented 14.97% of all rows and 16.16% of
+eligible rows. Example event dates: 2017-06-27, 2017-06-29, and 2017-09-08.
+The frequency was neither effectively zero nor close to all observations; it
+does not establish an appropriate frequency or useful outcomes. Defaults were
+not changed. No future returns were inspected, no network was used, and no
+generated outputs were persisted. Exact counts depend on the cached data vintage.
+
+This validates implementation behavior, not the hypothesis's predictive value.
+Correlated components, inclusive ties, changing distributions, overlapping events,
+history length, convenience-universe survivorship, and revised adjusted data remain
+research limitations. Appending/changing future rows cannot alter past outputs
+for a fixed historical prefix; replacing past data or truncating required history
+can. Historical bars and SPY provenance are trusted upstream contracts, not verified
+here. No probabilities, optimized parameters, or profitability conclusions exist.

@@ -33,10 +33,11 @@ Dashboard / alerts
 
 ## Current status
 
-Research foundation, validated daily OHLCV ingestion, Parquet caching, and a
-trailing quantitative feature engine are implemented with deterministic tests.
+Research foundation, validated daily OHLCV ingestion, Parquet caching, a trailing
+quantitative feature engine, and DipSignal V1 candidates are deterministically tested.
 The initial test universe is AAPL, MSFT, NVDA, AMZN, GOOGL, and SPY (market
-benchmark). Signal, scoring, support, and backtesting work remain future milestones.
+benchmark). V1 flags unusual observations, not buy instructions. Scoring, support,
+outcome evaluation, and backtesting remain future milestones.
 
 Core stack: Python, NumPy, pandas, PyArrow/Parquet, yfinance, and pytest. Polars
 will be used where processing scale justifies it; later research may use VectorBT,
@@ -89,3 +90,16 @@ The [feature guide](docs/FEATURES.md) documents returns, price location, RSI/ATR
 volatility, volume, and benchmark-relative measurements. Features use data through
 the current close, retain warm-up NaNs, and contain no trading thresholds. Any
 later execution must respect their after-close availability.
+
+```python
+from src.signals import build_signals
+
+# SPY supplies market context; classify the non-benchmark stocks here.
+candidates = build_signals(measurements.loc[measurements["ticker"].ne("SPY")])
+events = candidates.loc[candidates["dip_event_v1"]]
+```
+
+[DipSignal V1](docs/SIGNALS.md) uses prior-only ticker-relative percentiles across
+four features, requiring complete measurements/history and at least three active
+components by default. It exposes condition-days separately from entry events.
+The candidate hypothesis has not been validated as a profitable strategy.

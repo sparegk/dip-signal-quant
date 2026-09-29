@@ -152,3 +152,69 @@ def compute_dip_components(
     # concat's attribute handling is not a provenance contract.
     _record_parameters(result, data, int(lookback), int(min_history), float(quantile))
     return result
+
+
+def _require_boolean(data: pd.DataFrame, columns: tuple[str, ...]) -> None:
+    for column in columns:
+        if column not in data:
+            raise ValueError(f"Missing required boolean column: {column}")
+        if not pd.api.types.is_bool_dtype(data[column].dtype) or data[column].isna().any():
+            raise ValueError(f"{column} must be boolean without missing values")
+
+
+def detect_dip_events(data: pd.DataFrame) -> pd.DataFrame:
+    """Identity plus rising edges of dip_condition_v1 within each ticker.
+
+    The first observed previous condition is False. Ineligible observations have
+    condition=False, so they break a run; a later qualifying observation is a new
+    observed event. This is neither position state nor a cooldown mechanism.
+    """
+    _validate_identity(data)
+    _require_boolean(data, ("dip_condition_v1",))
+    base = data.reset_index(drop=True)
+    previous = base.groupby("ticker", sort=False, observed=True)["dip_condition_v1"].shift(
+        1, fill_value=False,
+    )
+    result = base[["timestamp", "ticker"]].copy()
+    result["dip_event_v1"] = base["dip_condition_v1"].astype(bool) & ~previous.astype(bool)
+    result.attrs = deepcopy(data.attrs)
+    return result
+
+
+def build_signals(
+    data: pd.DataFrame,
+    *,
+    lookback: int = 252,
+    min_history: int = 126,
+    quantile: float = .20,
+    required_components: int = 3,
+) -> pd.DataFrame:
+    """Append transparent DipSignal V1 classifications to feature-engine output.
+
+    Condition = complete-row readiness AND count >= required_components (1..4).
+    Counts retain available component flags even on ineligible rows, but missing
+    inputs/thresholds always prevent the condition and event. Preserve all input
+    columns/provenance, reject output collisions, and never mutate input or fill
+    features. No threshold optimization, scores, labels, or trade recommendations.
+    """
+    required = _integer(required_components, "required_components", maximum=4)
+    components = compute_dip_components(
+        data, lookback=lookback, min_history=min_history, quantile=quantile,
+    )
+    _require_boolean(components, (*COMPONENT_COLUMNS, "dip_ready_v1"))
+    components["dip_component_count"] = components.loc[:, COMPONENT_COLUMNS].sum(axis=1).astype("int64")
+    components["dip_condition_v1"] = (
+        components["dip_ready_v1"] & components["dip_component_count"].ge(required)
+    ).astype(bool)
+    components["dip_event_v1"] = detect_dip_events(components)["dip_event_v1"]
+    additions = components.drop(columns=["timestamp", "ticker"])
+    overlap = set(data.columns) & set(additions.columns)
+    if overlap:
+        raise ValueError(f"Refusing to overwrite existing signal columns: {sorted(overlap)}")
+    result = pd.concat([data.reset_index(drop=True), additions], axis=1)
+    result.attrs = deepcopy(components.attrs)
+    result.attrs["signal_parameters"].update(
+        required_components=required, require_all_features=True,
+        event_definition="same_ticker_condition_rising_edge",
+    )
+    return result

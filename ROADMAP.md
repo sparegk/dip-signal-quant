@@ -6,7 +6,7 @@
 - [x] Python environment established
 - [x] Historical market-data layer
 - [x] Feature engine
-- [ ] DipSignal V1
+- [x] DipSignal V1
 - [ ] DipScore V1
 - [ ] Backtesting framework
 - [ ] Baseline strategy comparisons

@@ -164,3 +164,39 @@ as well as successful results; link experiment IDs and decisions when relevant.
   prevent readiness; data-vintage and calendar-completeness limitations persist.
 - Next step: Add conservative condition/count logic, independent per-ticker rising
   edges, full temporal/contamination regressions, and a fixed-default frequency check.
+
+## 2026-09-30 — DipSignal V1 candidate engine completed
+
+- Research question: Can concurrent self-relative lower-tail measurements identify
+  transparent dip candidates without self-inclusion, future-data, or ticker leakage?
+- Hypothesis: At least three of four depressed dimensions may identify observations
+  worth later outcome evaluation; no rebound or profitable strategy is assumed.
+- Work performed: Added integer component counts, complete-row eligibility, V1
+  conditions, and independent per-ticker rising-edge events. Kept fixed defaults
+  (252 prior positions, 126 valid observations, 0.20 quantile, three components).
+  Documented linear interpolation, inclusive ties, missing-data event semantics,
+  after-close availability, and architectural decisions in ADR-010/011.
+- Result: `python -m pytest -q -W error --tb=short`: 293 passed (175 unchanged
+  data/feature tests plus 118 signal tests), with warnings treated as errors.
+  Fourteen default/custom-window regressions compare all historical outputs exactly
+  after both appending and drastically modifying future rows. Four feature-specific
+  current-outlier exclusion tests pass. Adding/altering an extreme second ticker
+  leaves the calm ticker unchanged. End-to-end OHLCV/feature/signal prefix and
+  warm-up checks also pass.
+- Sanity check: Loaded existing AAPL and SPY caches only, with provider downloading
+  patched to fail if attempted. AAPL as the target and SPY as benchmark produced
+  2,512 rows by 45 columns for 2016-09-29 through 2026-09-28. There were 2,327
+  eligible observations, 376 condition-days (14.97% of all rows; 16.16% of eligible
+  rows), and 117 events. Example entries: 2017-06-27, 2017-06-29, 2017-09-08;
+  the last cached entry was 2026-08-10. No infinite thresholds occurred; flags were
+  boolean and every event was a condition-day. No generated outputs were saved.
+- Interpretation: Frequency was not effectively zero or close to universal. This
+  is descriptive implementation validation only; no future returns were inspected,
+  no parameters were tuned, and no predictive/performance conclusion was drawn.
+- Limitations: Correlated components, inclusive ties, interrupted eligibility,
+  overlapping episodes, history dependence, survivorship, and revised adjusted
+  data remain. Incomplete rows break runs; later entries do not prove a distinct
+  economic episode. Inputs must retain correct upstream feature/benchmark provenance.
+- Next step: Predefine empirical evaluation splits, baselines, and after-close
+  timing/cost assumptions before separately implementing outcome evaluation or
+  backtesting. DipScore and all later strategy/execution milestones remain unstarted.
