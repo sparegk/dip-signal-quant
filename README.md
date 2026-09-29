@@ -33,9 +33,10 @@ Dashboard / alerts
 
 ## Current status
 
-Research foundation, validated daily OHLCV ingestion, and Parquet caching are
-implemented with deterministic tests. The initial test universe is AAPL, MSFT, NVDA, AMZN,
-GOOGL, and SPY (planned market benchmark). Strategy modules remain placeholders.
+Research foundation, validated daily OHLCV ingestion, Parquet caching, and a
+trailing quantitative feature engine are implemented with deterministic tests.
+The initial test universe is AAPL, MSFT, NVDA, AMZN, GOOGL, and SPY (market
+benchmark). Signal, scoring, support, and backtesting work remain future milestones.
 
 Core stack: Python, NumPy, pandas, PyArrow/Parquet, yfinance, and pytest. Polars
 will be used where processing scale justifies it; later research may use VectorBT,
@@ -76,3 +77,15 @@ Generated files live in `data/market/` and are excluded from Git. Prices are adj
 missing required values raise and are never filled. Existing caches do not refresh
 automatically. See [the market-data API and limitations](docs/MARKET_DATA.md) for
 date ranges, provenance, storage behavior, and the optional live smoke check.
+
+```python
+from src.features import build_features
+
+spy = universe.loc[universe["ticker"].eq("SPY")]
+measurements = build_features(universe, benchmark=spy)
+```
+
+The [feature guide](docs/FEATURES.md) documents returns, price location, RSI/ATR,
+volatility, volume, and benchmark-relative measurements. Features use data through
+the current close, retain warm-up NaNs, and contain no trading thresholds. Any
+later execution must respect their after-close availability.

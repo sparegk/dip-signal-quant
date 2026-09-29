@@ -81,28 +81,117 @@ Volatility and volume windows require n >= 2, RSI n >= 2, and ATR n >= 1.
 `annualization=252` is configurable; `annualization=1` reports daily std instead.
 These features neither infer liquidity nor impose a market-regime classification.
 
+## Benchmark-relative measurements
+
+Supply a separate validated, single-ticker benchmark frame, normally SPY. The
+engine neither downloads a benchmark nor implicitly chooses one from the input.
+Benchmark context is computed once using its full supplied history, before
+aligning to stocks. The stock row set and order are preserved.
+
+Let `B(t)` be benchmark close on the exact stock session date `t`, and `s` the
+date n observed stock bars before `t`.
+
+| Name | Default window | Definition / measurement | Required data | Warm-up / undefined |
+| --- | --- | --- | --- | --- |
+| `relative_return_{n}d` | 5, 10, 20 | `(C_t/C_s - 1) - (B(t)/B(s) - 1)`; difference in trailing returns over identical endpoints | Stock and benchmark close, exact timestamps | First n stock bars NaN; missing benchmark endpoint => NaN |
+| `benchmark_return_{n}d` | 20 | Benchmark's own n-bar trailing simple return; market price change | Benchmark close | First n benchmark bars NaN; unmatched stock date => NaN |
+| `benchmark_drawdown_{n}d` | 20 | Benchmark close / trailing highest benchmark close - 1; market price location | Benchmark close | First n-1 benchmark bars NaN; unmatched date => NaN |
+| `benchmark_volatility_{n}d` | 20 | Sample std of benchmark daily simple returns times sqrt(annualization) | Benchmark close | First n benchmark bars NaN; unmatched date => NaN |
+
+Only exact-date joins are allowed: no forward-fill, backward-fill, nearest-date,
+or as-of substitution. An absent benchmark endpoint invalidates that relative
+return even if other nearby observations exist. An absent interior benchmark bar
+does not invalidate a close-to-close return when both endpoints exist. The two
+endpoints still describe the same stock/benchmark holding interval.
+
+With mismatched calendars, `relative_return_20d` need not equal `return_20d`
+minus `benchmark_return_20d`: the relative feature uses the stock's two endpoints,
+whereas market context uses the benchmark's own 20-bar horizon. This avoids
+comparing different intervals by accident. Missing stock rows never compress the
+benchmark history used for context. Context can be available at stock inception
+if earlier benchmark data was supplied; relative returns still need stock history.
+
+All benchmark features obey the after-close convention. Matching session dates
+assumes both bars are available at calculation time, as for the initial US equity
+universe/SPY. Cross-market close times require additional availability metadata;
+session-date equality alone does not establish simultaneous publication.
+
 ## API
 
 `compute_returns`, `compute_price_location_features`, `compute_price_zscores`,
-`compute_rsi`, `compute_atr`, `compute_volatility`, and `compute_volume_features`
+`compute_rsi`, `compute_atr`, `compute_volatility`, `compute_volume_features`, and
+`compute_relative_features`
 return `timestamp`, `ticker`, and their feature family. Each accepts cleaned
 single- or multi-ticker data and configurable windows. `build_features` appends
 the feature families to a copy of all input columns, retaining source provenance.
-Output rows remain in `(timestamp, ticker)` order with a fresh RangeIndex. Existing
+`compute_relative_features(data, benchmark, windows=(5, 10, 20), context_window=20)`
+adds relative returns and all three context measurements. The builder enables
+these only when `benchmark=` is supplied. Output rows remain in
+`(timestamp, ticker)` order with a fresh RangeIndex. Existing
 columns that collide with generated features raise instead of being overwritten.
 
 Calculations split by ticker before any shift or rolling operation. The builder
 validates/group-splits once and concatenates once. pandas handles labelled
-trailing calculations; NumPy handles safe vectorized arithmetic. Polars is not
-needed for this in-memory daily workload. No new dependency is required.
+trailing calculations and the compiled Wilder recurrence; NumPy handles
+vectorized True Range and safe arithmetic. Iteration is over tickers and window
+configurations, not individual rows. Polars is not needed for this in-memory daily
+workload. No new dependency is required or performance benchmark claimed.
+
+`build_features` records normalized configuration in `attrs["feature_parameters"]`.
+Benchmark-enabled outputs also record benchmark identity and source provenance
+in `attrs["feature_benchmark"]`. Preserve source snapshots, configuration, and
+code commit for research reproducibility. No derived-data persistence layer is
+introduced here; do not pass feature frames to the raw market snapshot writer,
+which intentionally persists only OHLCV columns.
 
 ```python
-from src.data import get_history
+from src.data import get_histories
 from src.features import build_features
 
-prices = get_history("AAPL")
-measured = build_features(prices, zscore_windows=(20, 60))
+prices = get_histories(("AAPL", "SPY"))
+spy = prices.loc[prices["ticker"].eq("SPY")]
+measured = build_features(prices, benchmark=spy)
+# Optional additional window; no parameter selection or optimization is performed.
+with_longer_zscore = build_features(prices, benchmark=spy, zscore_windows=(20, 60))
 ```
 
-Benchmark-relative measurements will be documented when that implementation
-milestone is complete.
+Default builder configuration produces 20 feature columns (27 with OHLCV), or
+26 feature columns (33 with OHLCV) when a benchmark is supplied. High/low distance
+windows are configured together with drawdown via `location_windows`; the shared
+high-distance/drawdown calculation is not repeated. The three benchmark context
+columns share `context_window`. Other options are `return_windows`,
+`zscore_windows`, `rsi_window`, `atr_window`, `volatility_windows`, `volume_windows`,
+`annualization`, and `relative_windows`.
+
+## Numerical policy, verification, and limitations
+
+Full-window warm-up NaNs and mathematically undefined zero-denominator results
+are preserved. Invalid OHLCV, duplicate observations/columns, bad configuration,
+nonfinite inputs, and detected numerical overflow raise. No clipping is applied
+to force feature values into expected ranges. Raw NaNs are rejected by the data
+contract; generated NaNs carry warm-up/alignment/undefined-division meaning.
+
+Deterministic tests use small synthetic data with hand-computable outputs. They
+check exact seeds and Wilder updates, all feature families, constant series,
+zero volume, multi-ticker isolation, unmatched benchmark dates, and warm-up/range
+invariants. Four prefix tests cover unbenchmarked features. Sixteen further
+cases cover eight cutoffs and default/custom windows, comparing every historical
+column both after adding future rows and after changing future stock/benchmark
+OHLCV. Prefixes must match exactly, including NaN positions.
+
+```powershell
+python -m pytest -q -W error --tb=short
+```
+
+The completed milestone passes 175 tests: 81 existing data tests and 94 feature
+tests. An offline smoke check of the existing AAPL/SPY snapshots produced 5,024
+rows and 33 columns, expected warm-up counts for both tickers, and no infinities.
+Recent rows were inspected only for structural/numerical sanity, not signal value.
+
+Limitations: observed-bar windows do not audit missing trading sessions. A return
+across an omitted session is treated as one observed interval in volatility;
+252-session annualization is a convention. Wilder values depend on the supplied
+history's starting point, so truncating its beginning can change later values.
+Current adjusted inputs and survivor-selected universes retain their existing
+research limitations. These measurements are not future-return labels, rebound
+probabilities, calibrated predictors, or evidence of an investable edge.

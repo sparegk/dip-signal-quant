@@ -218,6 +218,75 @@ def compute_volume_features(
     return _apply_by_ticker(data, lambda g: _volume(g["volume"].astype(float), sizes))
 
 
+def _prepare_benchmark(
+    benchmark: pd.DataFrame, context_window: int, annualization: float
+) -> pd.DataFrame:
+    """Compute context on the benchmark's own history before any alignment."""
+    def calculate(group: pd.DataFrame) -> FeatureValues:
+        close = group["close"].astype(float)
+        daily = _returns(close, (1,))["return_1d"]
+        n = context_window
+        return {
+            "benchmark_close": close,
+            f"benchmark_return_{n}d": _ratio(close, close.shift(n)) - 1,
+            f"benchmark_drawdown_{n}d": _ratio(close, close.rolling(n, min_periods=n).max()) - 1,
+            f"benchmark_volatility_{n}d": _volatility(daily, (n,), annualization)[f"volatility_{n}d"],
+        }
+
+    context = _apply_by_ticker(benchmark, calculate)
+    if context["ticker"].nunique() != 1:
+        raise ValueError("benchmark must contain exactly one ticker")
+    return context.drop(columns="ticker").set_index("timestamp")
+
+
+def _relative(
+    group: pd.DataFrame, benchmark: pd.DataFrame, windows: tuple[int, ...]
+) -> FeatureValues:
+    # Exact-date reindex only. No nearest/asof match, fill, or calendar compression.
+    aligned = benchmark.reindex(pd.DatetimeIndex(group["timestamp"]))
+    aligned.index = group.index
+    close = group["close"].astype(float)
+    reference = aligned["benchmark_close"]
+    result = {
+        f"relative_return_{n}d": (
+            _ratio(close, close.shift(n)) - _ratio(reference, reference.shift(n))
+        ) for n in windows
+    }
+    result.update({column: aligned[column] for column in aligned if column != "benchmark_close"})
+    return result
+
+
+def _record_benchmark(result: pd.DataFrame, benchmark: pd.DataFrame) -> None:
+    """Attach source identity without mutating either input's provenance."""
+    result.attrs["feature_benchmark"] = {
+        "ticker": str(benchmark["ticker"].iloc[0]),
+        "provenance": deepcopy(benchmark.attrs),
+    }
+
+
+def compute_relative_features(
+    data: pd.DataFrame,
+    benchmark: pd.DataFrame,
+    windows: Iterable[int] = (5, 10, 20),
+    *,
+    context_window: int = 20,
+    annualization: float = 252,
+) -> pd.DataFrame:
+    """Stock return minus benchmark return over identical timestamp endpoints.
+
+    Horizons count the stock's observed bars. Both endpoint benchmark closes must
+    exist; otherwise relative return is NaN. Context uses the benchmark's own
+    trailing bars and is NaN on unmatched dates. Supply exactly one benchmark
+    ticker explicitly (normally SPY); no implicit extraction or network access.
+    """
+    sizes = _windows(windows)
+    context_size = _windows((context_window,), minimum=2)[0]
+    context = _prepare_benchmark(benchmark, context_size, _annualization(annualization))
+    result = _apply_by_ticker(data, lambda group: _relative(group, context, sizes))
+    _record_benchmark(result, benchmark)
+    return result
+
+
 def build_features(
     data: pd.DataFrame,
     *,
@@ -229,11 +298,16 @@ def build_features(
     volatility_windows: Iterable[int] = (20, 60),
     volume_windows: Iterable[int] = (20,),
     annualization: float = 252,
+    benchmark: pd.DataFrame | None = None,
+    relative_windows: Iterable[int] = (5, 10, 20),
+    context_window: int = 20,
 ) -> pd.DataFrame:
     """Copy validated OHLCV and append trailing measurements in canonical order.
 
     Preserve input columns and provenance, reset the row index, and reject column
-    collisions. Full-window warm-up NaNs stay explicit. No network or file access.
+    collisions. Full-window warm-up NaNs stay explicit. A separately supplied
+    single-ticker benchmark enables relative returns and market context. No
+    automatic benchmark discovery, network access, or file access.
     """
     returns = _windows(return_windows)
     locations = _windows(location_windows)
@@ -243,16 +317,33 @@ def build_features(
     volatility = _windows(volatility_windows, minimum=2)
     volume = _windows(volume_windows, minimum=2)
     scale = _annualization(annualization)
+    relative = _windows(relative_windows)
+    context_size = _windows((context_window,), minimum=2)[0]
+    context = None if benchmark is None else _prepare_benchmark(benchmark, context_size, scale)
 
     def calculate(group: pd.DataFrame) -> FeatureValues:
         close = group["close"].astype(float)
         price_returns = _returns(close, tuple(sorted(set(returns) | {1})))
-        return {
+        values = {
             **{f"return_{n}d": price_returns[f"return_{n}d"] for n in returns},
             **_locations(close, locations), **_zscores(close, zscores),
             **_rsi(close, rsi), **_atr(group, atr),
             **_volatility(price_returns["return_1d"], volatility, scale),
             **_volume(group["volume"].astype(float), volume),
         }
+        if context is not None:
+            values.update(_relative(group, context, relative))
+        return values
 
-    return _apply_by_ticker(data, calculate, preserve_input=True)
+    result = _apply_by_ticker(data, calculate, preserve_input=True)
+    if benchmark is not None:
+        _record_benchmark(result, benchmark)
+    result.attrs["feature_parameters"] = {
+        "return_windows": returns, "location_windows": locations, "zscore_windows": zscores,
+        "rsi_window": rsi, "atr_window": atr, "volatility_windows": volatility,
+        "volume_windows": volume, "annualization": scale,
+        "relative_windows": relative if benchmark is not None else (),
+        "context_window": context_size if benchmark is not None else None,
+        "availability": "after_close", "window_unit": "observed_bars", "std_ddof": 1,
+    }
+    return result

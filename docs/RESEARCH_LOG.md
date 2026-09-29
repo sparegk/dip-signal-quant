@@ -112,3 +112,33 @@ as well as successful results; link experiment IDs and decisions when relevant.
   are not detected or filled by this layer.
 - Next step: Add explicit benchmark alignment, market context, and final leakage
   regression coverage, then run an offline cached-data smoke check.
+
+## 2026-09-30 — Feature engine completed with benchmark alignment
+
+- Research question: Can market-relative measurements compare identical periods
+  while retaining the feature engine's causal and multi-ticker invariants?
+- Hypothesis: Exact endpoint matching and independently computed benchmark context
+  avoid silently mismatching return horizons or filling unavailable market data.
+- Work performed: Added optional SPY/benchmark-relative 5/10/20-bar returns and
+  20-bar benchmark return, drawdown, and volatility. Added endpoint coverage tests,
+  prior benchmark-history handling, configuration/provenance metadata, and complete
+  V1 documentation. Recorded timing, smoothing, and alignment decisions in ADRs.
+- Result: Full suite `python -m pytest -q -W error --tb=short`: 175 passed (81
+  unchanged data-layer tests, 94 feature tests). Four unbenchmarked prefix cases
+  and sixteen benchmark-enabled cases pass exact historical-value comparisons;
+  the latter also alter future stock/benchmark OHLCV. Defaults and custom windows
+  cover initialization boundaries and missing benchmark dates.
+- Manual check: Loaded only existing AAPL/SPY Parquet snapshots, without network
+  calls or generated output files. The builder produced 5,024 rows by 33 columns
+  (7 OHLCV plus 26 measurements). NaN counts matched documented warm-ups for both
+  tickers, recent rows were inspected, and no infinite feature values occurred.
+- Interpretation: Feature definitions and causal calculations are validated on
+  deterministic fixtures and structurally checked on cached history. No predictive
+  performance, signal thresholds, or strategy results were evaluated.
+- Limitations: Adjusted-data revisions and survivorship limitations persist.
+  Windows count observed bars; there is no calendar-gap audit. Wilder seeds depend
+  on the supplied starting history. Benchmark date matching assumes shared bar
+  availability; different market close times require additional metadata.
+- Next step: Specify a testable DipSignal V1 research hypothesis and candidate
+  definition, including data splits and later timing assumptions, before implementing
+  signal logic. DipSignal/DipScore and all strategy milestones remain unstarted.

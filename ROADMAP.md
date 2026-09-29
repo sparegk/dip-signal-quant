@@ -5,7 +5,7 @@
 - [x] Repository created
 - [x] Python environment established
 - [x] Historical market-data layer
-- [ ] Feature engine
+- [x] Feature engine
 - [ ] DipSignal V1
 - [ ] DipScore V1
 - [ ] Backtesting framework
