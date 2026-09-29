@@ -142,3 +142,25 @@ as well as successful results; link experiment IDs and decisions when relevant.
 - Next step: Specify a testable DipSignal V1 research hypothesis and candidate
   definition, including data splits and later timing assumptions, before implementing
   signal logic. DipSignal/DipScore and all strategy milestones remain unstarted.
+
+## 2026-09-30 — Prior-history percentile dip components
+
+- Research question: Can each ticker's own trailing feature distribution define
+  transparent dip components without current-observation or cross-ticker leakage?
+- Hypothesis: Concurrent lower-tail drawdown, price depression, low proximity, and
+  SPY-relative weakness identify unusual observations worth later evaluation;
+  no rebound or profitability claim is assumed.
+- Work performed: Confirmed the 175-test baseline. Added prior-only rolling
+  empirical quantiles, four boolean components, explicit complete-row readiness,
+  strict input/configuration validation, and the initial signal methodology guide.
+- Result: 53 deterministic signal-component tests pass with warnings treated as
+  errors, including independent outlier exclusion tests for all four features.
+  Thresholds use the previous 252 row positions by default and require 126 valid
+  values per feature within those positions; NaNs do not compress the window.
+- Interpretation: Historical comparisons are explicit and testable. Inclusive
+  quantile ties can activate a component more frequently than its nominal tail.
+- Limitations: Components are correlated and cannot be treated as independent
+  confirmations or converted to probabilities. Missing current values or thresholds
+  prevent readiness; data-vintage and calendar-completeness limitations persist.
+- Next step: Add conservative condition/count logic, independent per-ticker rising
+  edges, full temporal/contamination regressions, and a fixed-default frequency check.
