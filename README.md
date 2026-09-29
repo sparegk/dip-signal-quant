@@ -33,8 +33,8 @@ Dashboard / alerts
 
 ## Current status
 
-Research foundation established; historical daily data ingestion is the first
-implementation milestone. The initial test universe is AAPL, MSFT, NVDA, AMZN,
+Research foundation and tested historical daily ingestion are implemented;
+Parquet caching is next. The initial test universe is AAPL, MSFT, NVDA, AMZN,
 GOOGL, and SPY (planned market benchmark). Strategy modules remain placeholders.
 
 Core stack: Python, NumPy, pandas, PyArrow/Parquet, yfinance, and pytest. Polars
