@@ -200,3 +200,30 @@ as well as successful results; link experiment IDs and decisions when relevant.
 - Next step: Predefine empirical evaluation splits, baselines, and after-close
   timing/cost assumptions before separately implementing outcome evaluation or
   backtesting. DipScore and all later strategy/execution milestones remain unstarted.
+
+## 2026-09-30 — Outcome machinery and frozen EXP-001 protocol
+
+- Research question: What happens after V1 events under explicit, reproducible
+  next-open entry assumptions, and how does it compare with ordinary observations?
+- Hypothesis: Unchanged V1 candidates may carry information beyond unconditional
+  stock and matched SPY returns; profitable outcomes are not assumed.
+- Work performed: Established the 293-test baseline. Added independent forward
+  outcomes at 1/3/5/10/20 bars; first-hit target/stop/time exits; conservative daily
+  ambiguity and observed-open gap semantics; two-sided costs; and independent versus
+  non-overlapping ticker modes. Added chronological partitions, full-window censoring,
+  baselines, descriptive metrics, date-cluster block-bootstrap intervals, subgroup
+  summaries, and an offline runner with snapshot hashes and fixed configuration.
+  Preserved existing data/feature/signal APIs. Recorded ADR-012/013.
+- Result: Full suite with warnings treated as errors: 419 passed (293 existing,
+  73 backtest/runner tests, 53 metric tests). Synthetic known paths, missing windows,
+  split boundaries, ticker isolation, causal signal preservation, cost arithmetic,
+  paired benchmark dates, and bootstrap reproducibility pass. No market outcomes
+  have yet been inspected; EXP-001's protocol is recorded before its first run.
+- Interpretation: Implementation behavior is tested, not predictive performance.
+  Do not mistake dependent event samples or variable-holding trades for regular
+  portfolio returns. Trade excursions on intraday exit bars are labelled envelopes.
+- Limitations: Boundary censoring, daily fill ambiguity, illustrative costs,
+  incomplete calendars, survivor selection, and revised adjusted-data inputs remain.
+  Bootstrap blocks only approximate dependence; small groups have undefined intervals.
+- Next step: Run the frozen offline EXP-001 once and report every split, including
+  negative results, without tuning or choosing favorable parameters/horizons.

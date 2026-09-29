@@ -32,6 +32,9 @@ is audited with `status`: `completed`, `no_next_bar`, `incomplete_window`, or
 `simulate_barrier_trades` defaults to target +10%, stop -7%, maximum holding 10
 observed bars, conservative ambiguity policy, independent events, and zero costs.
 These parameters are illustrative, not optimized or claimed optimal.
+Target must be a finite positive fraction; stop must be strictly between 0 and 1;
+holding bars must be a positive integer. Costs must be finite fractions in [0, 1).
+Boolean configuration values and numerically unrepresentable barriers raise.
 
 Barriers are fixed relative to the observed un-slipped entry open E. Starting on
 the entry bar, inspect each bar in chronological order:
@@ -125,5 +128,75 @@ minus matched benchmark return, not a compounded relative wealth ratio. Compare
 stock/benchmark means on paired rows; disclose paired counts. No fixed-drawdown
 baseline or optimized technical-strategy baseline is introduced.
 
-Metrics and the reproducible first experiment are added in the next coherent
-implementation step. No strategy outcomes have yet been examined in this milestone.
+## Metrics and uncertainty
+
+`summarize_returns` reports valid/missing counts, mean, median, sample standard
+deviation (ddof=1), win rate (return > 0), expectancy (mean including zero returns),
+and profit factor (sum positive returns / absolute sum negative returns; undefined
+with no losses). Equal-return-notional weighting is implicit, not dollar P&L.
+
+Mean uncertainty uses a seeded circular moving-block bootstrap. For event reports,
+first group all stocks sharing a signal date together, then sample contiguous
+blocks of 20 distinct **observed event dates**, wrapping around the sample. Draw
+enough blocks to recreate the number of date clusters; keep entire clusters so
+same-day cross-stock dependence is retained. Weight the resulting mean by rows,
+not equally by date. Use 2,000 resamples, seed 42, bootstrap standard deviation as
+standard error, and 2.5/97.5 percentile endpoints as a 95% interval. Require at
+least 40 date clusters for the default block size; otherwise SE/CI stay undefined.
+
+Blocks are a transparent dependence approximation, not a proof of calibrated
+coverage, stationarity, independence, or statistical significance. Twenty event
+dates are not necessarily twenty sessions. Sparse subgroups may have no interval.
+Controls use the same rule on their selected observation dates. The low-level API
+allows other block sizes and an explicit IID case (one row per cluster, size 1),
+but EXP-001 does not select a block size based on its results.
+
+`summarize_outcomes` groups by split/horizon by default, with configurable grouping
+such as component count or ticker. It includes excluded counts, mean MFE/MAE,
+paired benchmark counts/means, and mean stock-minus-benchmark return. Pooling stocks
+uses one weight per observation; event and unconditional samples can have different
+ticker/date composition, so their mean difference is descriptive, not causal alpha.
+
+`trade_metrics` reports candidate/completed/excluded counts, gross/net mean return,
+net median/std/win rate/expectancy/profit factor, average bar-envelope MFE/MAE,
+holding bars, and TP/SL/time-exit rates. Missing/invalid completed metrics raise.
+Pooled independent or per-ticker non-overlap streams are **not** an allocated
+portfolio, so cumulative return, Sharpe, Sortino, and drawdown are not reported
+as pooled performance. In a single sorted non-overlapping ticker stream,
+`sequential=True` reports hypothetical full-reinvestment cumulative return and
+trade-close maximum drawdown, including initial wealth 1. Idle cash earns zero;
+intratrade mark-to-market losses are absent. This is not daily portfolio drawdown.
+
+`risk_adjusted_metrics` is available only for caller-supplied regular-period
+non-overlapping capital returns. Sharpe = mean(r-rf)/sample_std(r-rf)*sqrt(K).
+Sortino = mean(r-target)/sqrt(mean(min(r-target,0)^2))*sqrt(K), using **all periods**
+in downside deviation. K defaults to 252; rf and target are per-period fractions,
+default zero. Insufficient samples or zero denominators produce NaN, not infinity.
+No regular portfolio-equity series is constructed here; EXP-001 correctly leaves
+these ratios undefined for variable-holding, overlapping trade/event samples.
+
+## Reproduction and scope
+
+```powershell
+python -m scripts.evaluate_v1
+python -m pytest -q -W error --tb=short
+```
+
+The runner requires existing AAPL/MSFT/NVDA/AMZN/GOOGL/SPY snapshots and fails if
+any are missing. It patches provider downloading to fail, prints JSON to stdout,
+and writes no artifacts. It records snapshot SHA-256 hashes, provider provenance,
+environment, code revision/dirty state, signal/exit settings, split dates, all
+five forward horizons, component-count subgroups at 10 bars, both trade modes,
+and per-ticker sequential summaries. No parameter search exists. See EXP-001 in
+[EXPERIMENTS.md](EXPERIMENTS.md) for the fixed protocol and observed results.
+
+pandas handles identity/date alignment and grouping; NumPy handles numerical
+summaries and bounded-batch bootstrap sampling. Per-event/path loops keep first-hit
+execution semantics explicit for daily research. No new dependency or unnecessary
+pandas/Polars conversion is introduced. Large-universe throughput is not benchmarked.
+
+Limitations include a survivor-selected five-stock universe, revised adjusted
+prices rather than point-in-time executions, no delisting/corporate-action cash
+ledger, daily intrabar ambiguity, hypothetical fill/liquidity/cost assumptions,
+overlapping dependent event windows, limited effective sample size, boundary
+censoring, and no portfolio allocation. Negative results must be retained.

@@ -218,9 +218,12 @@ def apply_costs(
             raise ValueError("Execution prices must be finite positive numbers")
     buy = float(entry_price) * (1 + slippage)
     sell = float(exit_price) * (1 - slippage)
+    outlay, proceeds = buy * (1 + commission), sell * (1 - commission)
+    if not np.isfinite([buy, sell, outlay, proceeds]).all() or min(outlay, proceeds) <= 0:
+        raise ValueError("Numerical overflow/underflow in cost arithmetic")
     result = {"entry_fill_price": buy, "exit_fill_price": sell,
               "gross_return": float(exit_price) / float(entry_price) - 1,
-              "net_return": sell * (1 - commission) / (buy * (1 + commission)) - 1}
+              "net_return": proceeds / outlay - 1}
     if not np.isfinite(list(result.values())).all():
         raise ValueError("Numerical overflow in cost arithmetic")
     return result
@@ -245,7 +248,10 @@ def simulate_barrier_trades(
     Trade MFE/MAE are full-bar envelopes through an intraday exit bar, not exact
     pre-exit excursions; for open exits, only that open is included on the exit day.
     """
-    target = _rate(take_profit, "take_profit", positive=True)
+    if (isinstance(take_profit, (bool, np.bool_)) or not isinstance(take_profit, Real)
+            or not np.isfinite(take_profit) or take_profit <= 0):
+        raise ValueError("take_profit must be a finite positive fraction")
+    target = float(take_profit)
     stop = _rate(stop_loss, "stop_loss", positive=True)
     holding = _positive_integer(max_holding_bars, "max_holding_bars")
     commission = _rate(commission_rate, "commission_rate")
@@ -277,6 +283,8 @@ def simulate_barrier_trades(
             upper, lower = entry * (1 + target), entry * (1 - stop)
             if not np.isfinite([upper, lower]).all():
                 raise ValueError("Numerical overflow in barrier prices")
+            if not 0 < lower < entry < upper:
+                raise ValueError("Barrier prices must be representably separated from entry")
             best, worst = entry, entry
             for j in range(entry_index, entry_index + holding):
                 bar = group.iloc[j]

@@ -152,6 +152,51 @@ episode. Absent sessions insert no rows. Entries are not statistically independe
 trades, and no execution or outcome is implied. Availability is after the current
 close; a later backtest must generally execute at t+1 or later.
 
+## ADR-012 — Separate next-open outcomes and split-bounded execution research
+
+Date: 2026-09-30. Status: Accepted.
+
+Decision: Keep forward outcomes/trade ledgers separate from causal features and
+signals. Enter on the next observed same-ticker open; entry day counts as holding
+bar 1. Use configurable first-hit target/stop/time exits, conservative same-bar
+ambiguity, open-price gap fills, and explicit adverse per-side costs. Preserve
+every candidate with a completion/exclusion status. Require the full horizon or
+maximum holding window within the signal's chronological split before evaluation.
+
+Reason: After-close data cannot justify a same-close entry. Daily OHLC cannot
+reconstruct intraday ordering. Uniform full-window censoring avoids selectively
+retaining quick wins/losses near dataset/split ends, and prevents research labels
+from consuming validation/test prices. Separate outcome tables prevent accidental
+reuse as predictive features. Fixed exit defaults remain illustrative hypotheses.
+
+Consequences: Some observable early exits near boundaries are deliberately excluded;
+no terminal liquidation is fabricated. Open exits use only exit-day open in excursion
+measurement; intraday exit excursions are explicitly full-bar envelopes that may
+include post-fill movement. Non-overlapping-per-ticker streams do not provide an
+allocated multi-stock portfolio. Observe all known data-vintage limitations.
+
+## ADR-013 — Descriptive comparisons with dependence-aware uncertainty
+
+Date: 2026-09-30. Status: Accepted.
+
+Decision: Freeze V1 and illustrative exits before inspecting EXP-001. Use common
+60/20/20 unique-session-date splits, unconditional ready/non-condition stock controls,
+and SPY returns matched to each stock's exact entry and endpoint dates. Estimate
+mean uncertainty using seeded circular blocks of 20 observed date clusters,
+keeping same-day stock rows together. Report subgroup outcomes without selecting
+parameters. Require at least two blocks for an interval.
+
+Reason: Chronology, same-interval comparisons, and visible missing/exclusion counts
+are more informative than a single pooled positive return. Overlapping events and
+simultaneous equity moves invalidate naive independent-trade interpretations.
+
+Consequences: Block-bootstrap coverage remains an assumption, not a significance
+claim; ticker/date composition can differ across baseline samples. Regular-period
+Sharpe/Sortino require an explicit capital-return series. Only single-ticker sorted
+non-overlapping trades may receive hypothetical reinvestment/trade-close drawdown
+metrics; no pooled portfolio curve is fabricated. Reporting the test split consumes
+that historical holdout: later tuning must not treat it as fresh out-of-sample data.
+
 ## ADR template
 
 - ID and title:

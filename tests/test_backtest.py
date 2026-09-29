@@ -299,3 +299,67 @@ def test_evaluation_never_changes_signal_history_or_feeds_back_future_prices():
     backtest.simulate_barrier_trades(changed)
     assert_frame_equal(changed.iloc[:300], original.iloc[:300], check_exact=True)
     assert not any(c.startswith("forward_") for c in signals)
+
+
+@pytest.mark.parametrize("function", [backtest.compute_forward_outcomes, backtest.simulate_barrier_trades])
+def test_later_split_prices_cannot_change_earlier_split_outcomes(function):
+    data = backtest.assign_research_splits(flat(100, events=(0, 10, 55, 58, 60, 80)))
+    expected = function(data)
+    data.loc[data["split"] != "research", ["open", "high", "low", "close"]] *= 10
+    changed = function(data)
+    assert_frame_equal(changed.loc[changed["split"] == "research"].reset_index(drop=True),
+                       expected.loc[expected["split"] == "research"].reset_index(drop=True))
+
+
+def test_irregular_stock_calendar_uses_stock_horizon_and_exact_spy_dates():
+    spy = bars([(100 + 10 * i,) * 4 for i in range(8)], ticker="SPY")
+    stock = bars([(100,) * 4] * 4, dates=spy.timestamp.iloc[[0, 2, 5, 7]])
+    result = backtest.compute_forward_outcomes(stock, benchmark=spy, horizons=(3,)).iloc[0]
+    assert result.entry_timestamp == spy.timestamp.iloc[2]
+    assert result.end_timestamp == spy.timestamp.iloc[7]
+    assert result.benchmark_return == pytest.approx(170 / 120 - 1)
+
+
+def test_offline_experiment_runner_uses_fixed_configuration_and_no_network(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    import json
+    from scripts import evaluate_v1
+    from src.data import save_parquet
+
+    for symbol in ("AAPL", "MSFT", "NVDA", "AMZN", "GOOGL", "SPY"):
+        close = 100 + 12 * np.sin(np.arange(300) / (17 if symbol == "SPY" else 9))
+        frame = bars([(p, p + 1, p - 1, p) for p in close], ticker=symbol)
+        save_parquet(frame.iloc[:, :7], tmp_path / f"{symbol}.parquet")
+    monkeypatch.setattr(evaluate_v1.subprocess, "run", lambda args, **kwargs:
+                        SimpleNamespace(stdout="fixed_revision" if "rev-parse" in args else ""))
+    report = evaluate_v1.run_experiment(tmp_path)
+    assert report["working_tree_dirty"] is False
+    assert report["signal_parameters"]["quantile"] == .2
+    assert report["exit_parameters"]["take_profit"] == .1
+    assert report["exit_parameters"]["commission_rate"] == .0001
+    assert report["uncertainty"]["seed"] == 42
+    assert [r["split"] for r in report["splits"]] == ["research", "validation", "test"]
+    assert len(report["trade_summaries"]) == 6
+    assert len(report["per_ticker_non_overlapping"]) == 15
+    assert len(report["snapshots"]["SPY"]["sha256"]) == 64
+    json.dumps(report, allow_nan=False)  # Undefined metrics are portable JSON null.
+
+
+def test_target_can_exceed_one_hundred_percent_but_stop_cannot():
+    data = bars([(100, 100, 100, 100), (100, 220, 99, 110)])
+    result = backtest.simulate_barrier_trades(data, take_profit=1.1, max_holding_bars=1).iloc[0]
+    assert result.exit_price == pytest.approx(210)
+    assert result.gross_return == pytest.approx(1.1)
+
+
+def test_unrepresentable_barriers_and_cost_overflow_are_rejected():
+    with pytest.raises(ValueError, match="representably"):
+        backtest.simulate_barrier_trades(flat(), take_profit=1e-30)
+    with pytest.raises(ValueError, match="overflow"):
+        backtest.apply_costs(1e308, 1e308, commission_rate=.9, slippage_rate=.1)
+
+
+@pytest.mark.parametrize("price", [0, -1, np.nan, np.inf, True, "100"])
+def test_cost_api_invalid_prices(price):
+    with pytest.raises(ValueError):
+        backtest.apply_costs(price, 100)
