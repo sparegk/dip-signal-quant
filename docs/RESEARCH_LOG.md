@@ -92,3 +92,23 @@ as well as successful results; link experiment IDs and decisions when relevant.
 - Limitations: Observed-bar windows are not exchange-calendar completeness checks;
   provider adjustments remain subject to the documented data-vintage limitation.
 - Next step: Add Wilder RSI/ATR, realized volatility, and volume measurements.
+
+## 2026-09-30 — Range, momentum, volatility, and volume measurements
+
+- Research question: Can complementary after-close measurements preserve explicit
+  initialization and undefined-value behavior without introducing signal rules?
+- Hypothesis: Mean-seeded Wilder averages and full trailing sample moments provide
+  testable measurements with stable historical prefixes.
+- Work performed: Added RSI, True Range, ATR and ATR/close, annualized realized
+  volatility, mean/relative volume, and volume z-scores. Documented smoothing,
+  first-bar True Range NaN, sample standard deviations, and zero denominators.
+- Result: 56 feature tests pass with warnings treated as errors. Exact small-series
+  seed/recurrence calculations, constant-history limits, ticker isolation, and
+  prefix tests pass. No thresholds or performance results were introduced.
+- Interpretation: Numerical conventions are explicit rather than left to
+  third-party indicator defaults; no new dependency was needed.
+- Limitations: Wilder values depend on the historical starting point through
+  their seed. Annualization assumes 252 observed sessions by default; omitted bars
+  are not detected or filled by this layer.
+- Next step: Add explicit benchmark alignment, market context, and final leakage
+  regression coverage, then run an offline cached-data smoke check.

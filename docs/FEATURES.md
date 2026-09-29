@@ -38,9 +38,53 @@ windows must be at least two. Other price windows must be positive integers.
 Window collections are nonempty, deduplicated, and sorted. A 60-bar price z-score
 can be requested explicitly; it is not a second default measurement.
 
+## RSI, range, volatility, and volume
+
+All entries below follow the same after-close availability convention above.
+Let `r_t = C_t / C_(t-1) - 1`, `V_t` be reported volume, and `H_t`, `L_t` be
+adjusted high/low. Ratios and returns are fractions, not percentage points.
+
+| Name | Default window | Definition / measurement | Required data | Warm-up / undefined |
+| --- | --- | --- | --- | --- |
+| `rsi_{n}` | 14 | `100 * G_t / (G_t + D_t)`; relative smoothed up/down price changes | Close | First n bars NaN; both averages zero => NaN |
+| `true_range` | Previous bar | `max(H_t-L_t, abs(H_t-C_(t-1)), abs(L_t-C_(t-1)))`; range including gaps | High, low, close | First bar NaN (previous close unavailable) |
+| `atr_{n}` | 14 | Wilder-smoothed True Range; absolute price-unit movement scale | High, low, close | First n bars NaN |
+| `atr_pct_{n}` | 14 | `atr_n / C_t`; movement scale relative to price | High, low, close | First n bars NaN |
+| `volatility_{n}d` | 20, 60 | `std_n(r) * sqrt(252)`; annualized realized variation | Close | First n bars NaN; constant returns => zero |
+| `volume_mean_{n}d` | 20 | `mean_n(V)`; trailing activity scale | Volume | First n-1 bars NaN |
+| `relative_volume_{n}d` | 20 | `V_t / mean_n(V)`; volume relative to recent average | Volume | First n-1 bars NaN; zero mean => NaN |
+| `volume_zscore_{n}d` | 20 | `(V_t - mean_n(V)) / std_n(V)`; standardized activity | Volume | First n-1 bars NaN; zero std => NaN |
+
+RSI uses gains `max(C_t-C_(t-1), 0)` and losses `max(C_(t-1)-C_t, 0)`.
+`G` and `D` begin with the arithmetic mean of the first n changes. Thereafter,
+each average follows `S_t = ((n-1)*S_(t-1) + x_t) / n`. Gain-only history gives
+100, loss-only history gives zero, and completely flat history stays undefined.
+These limiting values are mathematical results, not trading thresholds.
+
+ATR seeds with the mean of the first n defined True Ranges (bars 2 through n+1),
+then uses the same Wilder recurrence. No high-minus-low substitute is invented
+for the first unavailable previous close. RSI and ATR both first appear on bar
+n+1. Wilder averages retain decaying dependence on earlier history; n is a
+smoothing period, not a hard truncation after the seed.
+
+The implementation explicitly inserts the arithmetic seed before using pandas
+[`ewm(alpha=1/n, adjust=False)`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.ewm.html).
+This avoids seeding with just the first observation. The recurrence is consistent
+with the established [RSI](https://github.com/TA-Lib/ta-lib/blob/main/src/ta_func/ta_RSI.c)
+and [ATR](https://github.com/TA-Lib/ta-lib/blob/main/src/ta_func/ta_ATR.c) formulations;
+the all-flat RSI NaN convention is explicit and may differ from other libraries.
+
+Volume moments include current volume. A zero-volume bar with a positive trailing
+mean has relative volume zero; an all-zero volume window has undefined relative
+volume and z-score. Prices, raw volume, and warm-up values are never filled.
+Volatility and volume windows require n >= 2, RSI n >= 2, and ATR n >= 1.
+`annualization=252` is configurable; `annualization=1` reports daily std instead.
+These features neither infer liquidity nor impose a market-regime classification.
+
 ## API
 
-`compute_returns`, `compute_price_location_features`, and `compute_price_zscores`
+`compute_returns`, `compute_price_location_features`, `compute_price_zscores`,
+`compute_rsi`, `compute_atr`, `compute_volatility`, and `compute_volume_features`
 return `timestamp`, `ticker`, and their feature family. Each accepts cleaned
 single- or multi-ticker data and configurable windows. `build_features` appends
 the feature families to a copy of all input columns, retaining source provenance.
@@ -60,5 +104,5 @@ prices = get_history("AAPL")
 measured = build_features(prices, zscore_windows=(20, 60))
 ```
 
-Volume, volatility, Wilder RSI/ATR, and benchmark-relative measurements will be
-documented as their implementation milestones are completed.
+Benchmark-relative measurements will be documented when that implementation
+milestone is complete.
