@@ -297,3 +297,48 @@ as well as successful results; link experiment IDs and decisions when relevant.
   metadata and all artifact hashes. Generated cache/results paths are ignored.
 - Next: Validate and commit the implementation, then run/report the registered
   experiment without changing the protocol or selecting favorable stocks/parameters.
+
+## 2026-10-01 — EXP-002 results verified and documented
+
+- Work: Completed the September 30 real-data run and independent offline replay
+  on clean revision `70a85ef`. Both metadata files and all 27 artifact hashes match
+  exactly. Audited 23,389 completed forward outcomes directly against cached OHLC,
+  and 7,780 completed records across both trade modes for costs and fold boundaries.
+  Added a hash-verifying documentation renderer and generated the experiment tables.
+- Universe: 95 requested current OEF stocks after excluding EXP-001 issuers; 74
+  usable, 21 excluded by existing malformed-OHLC checks, with no replacements.
+  Six annual folds cover 2021-01-04 through 2026-09-28, with expanding history from
+  2016-09-29 and partial 2026. Current membership and adjusted vintages are not PIT.
+- Frequency/results: 4,825 events. Ten-bar pooled gross mean is 1.066%, versus
+  0.741% unconditional and 0.822% matched SPY. Event/benchmark differences have not
+  been established as statistically significant. Only 36/74 ticker paired excess
+  means are positive, so the registered directional breadth criterion fails even
+  though event means beat both controls in 5/6 folds.
+- Barriers: Non-overlapping pooled mean net 0.510%, median 0.329%, win rate 52.462%,
+  PF 1.230, across 3,128 trades. Five folds and 52/74 tickers have positive net
+  means, satisfying the separate descriptive sign criterion. But 2022 mean net
+  is -0.246%; 22 ticker expectancies are negative, including BLK -1.805%, LOW
+  -1.142%, and DIS -0.922%. No loss or failed criterion has been hidden.
+- Concentration/regimes: Top five account for 26.328% of positive ticker net
+  contributions and 41.373% of positive ten-bar excess contributions. Neither
+  exceeds the registered 50% diagnostic flag. Above/below-SPY-200-day regimes
+  average 0.423%/0.790% non-overlapping net, with different absolute/excess event
+  behavior. Three components average 1.157% at ten bars versus four at 0.768%.
+- Integrity: The preregistration text and configuration remain unchanged; feature,
+  signal, evaluation and aggregation sources match hashes recorded during the run.
+  Only reporting/tests/documentation were finished after observing outcomes. EXP-001
+  remains intact, including its near-zero test result. Generated datasets and
+  outputs remain ignored. No parameters or sample members were selected afterward.
+- Final validation: 468 tests passed with warnings treated as errors (419 existing
+  plus 49 new deterministic tests). `pip check` reports no broken requirements.
+  The renderer's document check passes; both real-data runs retain identical
+  metadata/artifact hashes. Generated/private/cache files are not tracked.
+- Interpretation/limitations: Positive pooled descriptive behavior persists, but
+  broad ticker-level incremental evidence fails the declared criterion. Survivor
+  and data-quality selection, revised prices, unequal histories, dependence,
+  approximate intervals, daily fills and absent portfolio/capacity accounting
+  prohibit claims of causal alpha or validated future profitability.
+- Next (recommendation only): Historical universe/data-quality audit and a separately
+  pre-registered prospective paper-signal archive. Both experiments' inspected
+  history is consumed. No support/scoring/ML, optimization, scanner or archive
+  implementation began in this milestone.

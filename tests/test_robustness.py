@@ -104,6 +104,14 @@ def test_complete_offline_runner_replays_identical_artifacts(cached_experiment, 
         completed = events.loc[(events.horizon == row.horizon) & (events.status == "completed")]
         assert row.mean == pytest.approx(completed.forward_return.mean())
     assert first["config"]["barrier_parameters"]["commission_rate"] == .0001
+    from scripts.report_exp002 import render_report
+    report = render_report(tmp_path / "one")
+    assert 'Requested 3; usable 1; excluded 2.' in report
+    assert report == render_report(tmp_path / "two")
+    artifact = tmp_path / "one" / "oos_summary.csv"
+    artifact.write_bytes(artifact.read_bytes() + b'changed')
+    with pytest.raises(ValueError, match="Artifact hash mismatch"):
+        render_report(tmp_path / "one")
 
 
 def test_cached_corruption_and_missing_benchmark_fail_explicitly(cached_experiment):
@@ -136,3 +144,17 @@ def test_frozen_source_guard_rejects_changes(cached_experiment):
     path.write_text(json.dumps(config), encoding="utf-8")
     with pytest.raises(ValueError, match="Frozen V1 source changed"):
         runner.load_config(path)
+
+
+def test_registered_benchmark_and_universe_remain_frozen():
+    from src.universe import select_universe
+    config = runner.load_config()
+    assert config['signal_parameters'] == dict(lookback=252, min_history=126, quantile=.2, required_components=3)
+    assert config['horizons'] == [1, 3, 5, 10, 20]
+    assert config['barrier_parameters'] == dict(take_profit=.1, stop_loss=.07, max_holding_bars=10,
+                                               ambiguity_policy='conservative', commission_rate=.0001,
+                                               slippage_rate=.0005)
+    assert len(config['source_tickers']) == 101
+    selected = select_universe(config['source_tickers'], exclude=config['excluded_tickers'])
+    assert len(selected) == 95
+    assert not set(selected) & {'AAPL', 'MSFT', 'NVDA', 'AMZN', 'GOOGL', 'GOOG', 'SPY'}

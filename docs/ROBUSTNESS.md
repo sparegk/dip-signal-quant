@@ -129,6 +129,7 @@ trades in each regime, plus existing three/four-component 10-bar subgroups.
 .\.venv\Scripts\python.exe -W error -m scripts.evaluate_exp002
 # Replay to another ignored directory and compare metadata artifact hashes.
 .\.venv\Scripts\python.exe -W error -m scripts.evaluate_exp002 --output-dir results/exp_002_replay
+.\.venv\Scripts\python.exe -m scripts.report_exp002 --check-doc docs/EXPERIMENTS.md
 .\.venv\Scripts\python.exe -m pytest -q -W error --tb=short
 ```
 
@@ -145,6 +146,13 @@ requested/usable names, exact folds, fixed configuration, source provenance, inp
 and execution-source hashes, environment, revision/dirty state, and output hashes.
 There is no run-time timestamp in deterministic output; retrieval timestamps belong
 to input provenance. A new code commit changes provenance even if metrics agree.
+
+The completed run on `70a85ef` and its independent replay matched metadata and all
+27 artifact hashes exactly. All 23,389 completed forward outcomes were also checked
+directly against cached OHLC; 7,780 completed records across both trade modes passed
+cost/boundary checks. The generated documentation block comes from a hash-verifying
+renderer, `scripts/report_exp002.py`. Its `--check-doc` option detects stale tables.
+See EXP-002 in the experiment registry for results and the failed breadth criterion.
 
 ## Future genuinely unseen temporal holdout policy
 

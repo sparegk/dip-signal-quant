@@ -239,6 +239,24 @@ calculations were vectorized with unchanged output semantics for broader control
 samples; the full EXP-001 report reproduced exactly. No signal/feature change,
 parameter search, portfolio model, scanner or future-signal archive is introduced.
 
+## ADR-016 — Retain the failed EXP-002 breadth criterion
+
+Date: 2026-10-01. Status: Accepted after fixed-specification reporting.
+
+Decision: Retain the frozen benchmark and every negative fold/ticker. Report the
+directional breadth criterion as failed because only 36/74 ticker ten-bar matched-SPY
+excess means are positive, despite favorable pooled means and 5/6 favorable fold
+comparisons. Evaluate the separately registered barrier sign criterion separately:
+5/6 positive fold means and 52/74 positive ticker net expectancies satisfy it.
+
+Reason: Pooled descriptive improvements cannot override a predeclared criterion,
+establish significance of baseline differences, or justify automatic model tuning.
+
+Consequences: The universe remains explicitly static/survivor-biased, the 21 OHLC
+exclusions remain visible, and the newly inspected history is consumed. Data-quality
+and historical-membership work plus prospective signal preservation are recommended
+next, not implemented or treated as authorized model/scanner development.
+
 ## ADR template
 
 - ID and title:

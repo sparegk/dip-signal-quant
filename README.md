@@ -41,7 +41,12 @@ benchmark). V1 flags unusual observations, not buy instructions. The first fixed
 specification evaluation, [EXP-001](docs/EXPERIMENTS.md), produced mixed results:
 illustrative non-overlapping test trades averaged 0.019% net, with material losses
 in some stocks. Profitability and statistically significant baseline outperformance
-are not established. Scoring, support, and walk-forward robustness remain future work.
+are not established. [EXP-002 robustness](docs/ROBUSTNESS.md) adds annual historical
+folds and 74 usable new stocks from 95 requested current OEF holdings. Its pooled
+non-overlapping net mean is 0.510%, but only 36/74 tickers have positive ten-bar
+excess means over matched SPY: the predeclared cross-sectional breadth criterion fails. Survivor bias,
+21 OHLC data exclusions and negative years/tickers remain documented. Both historical
+samples are consumed. Scoring, support and prospective validation remain future work.
 
 Core stack: Python, NumPy, pandas, PyArrow/Parquet, yfinance, and pytest. Polars
 will be used where processing scale justifies it; later research may use VectorBT,
@@ -118,3 +123,17 @@ EXP-001 offline using the preserved six snapshots in the project environment:
 
 The runner prints JSON and does not refresh data. Snapshot hashes and exact split
 dates are recorded in EXP-001; its historical test partition has now been consumed.
+
+EXP-002 uses frozen configuration in `config/exp002.json`. Run it offline after
+preserving/acquiring the required caches:
+
+```powershell
+.\.venv\Scripts\python.exe -W error -m scripts.evaluate_exp002
+.\.venv\Scripts\python.exe -m scripts.report_exp002 --check-doc docs/EXPERIMENTS.md
+```
+
+See the [robustness guide](docs/ROBUSTNESS.md) for acquisition, exclusions,
+membership intervals, replay and future-holdout policy. Generated outputs under
+`results/exp_002/` are ignored; static constituents are not point-in-time membership.
+The document check uses the preserved EXP-002 artifacts; a rerun at a newer commit
+changes recorded execution provenance even when numerical tables reproduce.
