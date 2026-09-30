@@ -360,3 +360,13 @@ pass with warnings as errors, including one-ULP rejection, rejected-row/vintage
 preservation, integrity/conflict checks and interruption recovery. No ingestion
 tolerance or strategy code changed. New diagnostic acquisition follows the pushed
 registration; results are recorded separately.
+
+## 2026-10-01 ? Session timing foundation
+
+Added exchange-calendars 4.13.2 (and its required dependencies) to obtain explicit
+XNYS sessions, holidays, early closes and DST-aware next-open deadlines. Twenty
+offline timing tests pass, including stale/late/replay/correction gates and missing
+run expectations. This dependency serves calendar correctness, not signal changes.
+The first diagnostic attempt failed yfinance database access in the sandbox; all
+21 failures remain in data/exp003/diagnostic. An approved infrastructure retry
+uses data/exp003/diagnostic_authorized without replacing the failed records.
