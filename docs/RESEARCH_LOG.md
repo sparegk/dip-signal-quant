@@ -370,3 +370,16 @@ run expectations. This dependency serves calendar correctness, not signal change
 The first diagnostic attempt failed yfinance database access in the sandbox; all
 21 failures remain in data/exp003/diagnostic. An approved infrastructure retry
 uses data/exp003/diagnostic_authorized without replacing the failed records.
+
+## 2026-10-01 ? Manual archive foundation
+
+Added the frozen-config manual collector, immutable run/input/result/receipt records,
+atomic session/version reservations, explicit failures/non-events, post-publication
+timing classification, integrity/replay and interrupted-run recovery. Raw and
+validated snapshots use a separate ignored content-addressed archive. Corrections
+remain separate from the original holdout. No scheduler or outcomes are implemented.
+The intermediate full suite passed 528 tests with warnings as errors; seven further
+archive edge cases bring its targeted suite to 31 passing tests. Publication that
+crosses the next open is late; old caches remain retrospective. The first eligible
+signal session (October 1) has not closed at implementation time, so no genuinely
+prospective observations can yet be collected.
