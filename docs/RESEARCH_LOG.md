@@ -227,3 +227,46 @@ as well as successful results; link experiment IDs and decisions when relevant.
   Bootstrap blocks only approximate dependence; small groups have undefined intervals.
 - Next step: Run the frozen offline EXP-001 once and report every split, including
   negative results, without tuning or choosing favorable parameters/horizons.
+
+## 2026-09-30 — EXP-001 completed and interrupted-session work recovered
+
+- Research question: Does the first fixed V1 specification show favorable outcomes
+  relative to ordinary stock observations and matched SPY intervals?
+- Hypothesis: The predeclared EXP-001 hypothesis is unchanged; positive absolute
+  returns alone do not demonstrate incremental signal value or profitability.
+- Recovery: Found outcome machinery already committed in `accbaa0` and metrics,
+  tests, runner, and frozen protocol in `801b8ff`. Only the EXP-001 results draft
+  was uncommitted. Preserved all implementation, tests, input caches, and parameters.
+  The global Python test attempt failed collection because PyArrow was absent;
+  using the existing project `.venv` resolved the environment mismatch without
+  changing dependencies. The complete recovered suite passed: 419 tests, with
+  warnings treated as errors.
+- Work performed: Reviewed execution and metric semantics and deterministic
+  coverage; completed experiment documentation and updated milestone status,
+  README, and ADR-014. Retained all five stocks, all five horizons, both trade
+  modes, and the three/four-component subgroups. See EXP-001 for exact snapshot
+  hashes, chronological boundaries, counts, and full tables.
+- Reproduction: Reran the unchanged offline experiment with warnings treated as
+  errors. All 87 table data rows matched programmatic results at displayed precision.
+  Corrected only the prose pre-censoring non-signal totals for validation/test to
+  2,180 / 2,120; the draft had used completed one-bar counts. Rerun JSON and its
+  local table audit remain ignored under `data/`. No network or cache refresh occurred.
+- Result: Research / validation / test contain 358 / 97 / 109 events. Ten-bar
+  gross event means are 1.331% / 2.664% / 1.784%; unconditional means are 1.022% /
+  1.876% / 1.050%, and matched-SPY means are 0.555% / 1.423% / 0.740%. Several
+  shorter-horizon comparisons are unfavorable. Non-overlapping barrier trades
+  average 0.221% / 1.684% / 0.019% net under the fixed costs. Test win rate is
+  47.297%, median -0.773%, and profit factor 1.007. Test MSFT and GOOGL sequences
+  compound to -34.135% and -23.281%; research AMZN compounds to -40.502%.
+- Interpretation: Mixed historical evidence, without established significance of
+  baseline differences or a robust profitable edge. Four components are not
+  uniformly better than three. The historical test partition is consumed by
+  reporting. No thresholds, holding periods, barriers, or stocks were selected
+  after observing results; negative findings remain part of the record.
+- Limitations: Five surviving mega-caps, revised adjusted data, dependent overlapping
+  windows, small subgroup samples, approximate bootstrap coverage, daily execution
+  ambiguity, full-window censoring, illustrative costs, and absent portfolio
+  allocation/liquidity accounting. Trade-close drawdown omits intratrade losses.
+- Next step: Recommend separately pre-registered robustness / walk-forward work,
+  broader point-in-time universe construction, and stronger fresh-holdout methodology.
+  This next milestone has not begun; no parameter optimization was performed.

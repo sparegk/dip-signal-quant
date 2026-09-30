@@ -34,10 +34,14 @@ Dashboard / alerts
 ## Current status
 
 Research foundation, validated daily OHLCV ingestion, Parquet caching, a trailing
-quantitative feature engine, and DipSignal V1 candidates are deterministically tested.
+quantitative feature engine, DipSignal V1 candidates, and initial outcome/backtest
+evaluation are deterministically tested.
 The initial test universe is AAPL, MSFT, NVDA, AMZN, GOOGL, and SPY (market
-benchmark). V1 flags unusual observations, not buy instructions. Scoring, support,
-outcome evaluation, and backtesting remain future milestones.
+benchmark). V1 flags unusual observations, not buy instructions. The first fixed
+specification evaluation, [EXP-001](docs/EXPERIMENTS.md), produced mixed results:
+illustrative non-overlapping test trades averaged 0.019% net, with material losses
+in some stocks. Profitability and statistically significant baseline outperformance
+are not established. Scoring, support, and walk-forward robustness remain future work.
 
 Core stack: Python, NumPy, pandas, PyArrow/Parquet, yfinance, and pytest. Polars
 will be used where processing scale justifies it; later research may use VectorBT,
@@ -103,3 +107,14 @@ events = candidates.loc[candidates["dip_event_v1"]]
 four features, requiring complete measurements/history and at least three active
 components by default. It exposes condition-days separately from entry events.
 The candidate hypothesis has not been validated as a profitable strategy.
+
+The [evaluation guide](docs/BACKTESTING.md) specifies next-open entries, fixed
+horizons, barrier exits, costs, censoring, baselines, and uncertainty. Reproduce
+EXP-001 offline using the preserved six snapshots in the project environment:
+
+```powershell
+.\.venv\Scripts\python.exe -W error -m scripts.evaluate_v1
+```
+
+The runner prints JSON and does not refresh data. Snapshot hashes and exact split
+dates are recorded in EXP-001; its historical test partition has now been consumed.

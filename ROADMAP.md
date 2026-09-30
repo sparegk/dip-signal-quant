@@ -8,8 +8,8 @@
 - [x] Feature engine
 - [x] DipSignal V1
 - [ ] DipScore V1
-- [ ] Backtesting framework
-- [ ] Baseline strategy comparisons
+- [x] Initial outcome evaluation / research backtest foundation (EXP-001)
+- [x] Initial unconditional-stock and matched-SPY baseline comparisons (EXP-001)
 - [ ] Support-memory model
 - [ ] Dynamic exit/risk research
 - [ ] Walk-forward validation
@@ -24,3 +24,8 @@
 - [ ] Paper trading integration
 
 Later milestones are research directions, not evidence of feasibility or an edge.
+EXP-001 is a completed first fixed-specification evaluation with mixed results,
+not a validated profitable strategy or an allocated portfolio simulator. Its
+historical test partition is consumed. Recommended next work is pre-registered
+robustness / walk-forward evaluation, broader point-in-time universe construction,
+and fresh holdout methodology; this work has not begun.

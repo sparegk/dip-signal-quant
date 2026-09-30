@@ -197,6 +197,27 @@ non-overlapping trades may receive hypothetical reinvestment/trade-close drawdow
 metrics; no pooled portfolio curve is fabricated. Reporting the test split consumes
 that historical holdout: later tuning must not treat it as fresh out-of-sample data.
 
+## ADR-014 — Retain EXP-001's fixed specification and mixed evidence
+
+Date: 2026-09-30. Status: Accepted.
+
+Decision: Close the initial evaluation foundation with all five stocks, all five
+horizons, both trade modes, and both component subgroups reported. Preserve V1's
+20th percentile, 252-bar lookback, 126-value minimum, three-of-four requirement,
+and the illustrative +10%/-7%/10-bar exits. Do not tune using the reported test split.
+
+Reason: Numerically higher event means are not tests of baseline differences.
+Non-overlapping test trades averaged only 0.019% net under the fixed costs;
+negative individual-stock results and the weaker validation four-component group
+are evidence to retain, not reasons to select a more favorable specification.
+
+Consequences: The historical holdout is consumed, and neither significance of
+baseline outperformance nor profitability is established. Recommend a separately
+pre-registered robustness / walk-forward milestone with a broader point-in-time
+universe and fresh holdout data. That milestone is not implemented or authorized
+by completion of EXP-001. Preserve local input snapshots; generated verification
+reports stay ignored by Git.
+
 ## ADR template
 
 - ID and title:

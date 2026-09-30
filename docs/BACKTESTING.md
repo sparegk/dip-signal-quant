@@ -178,9 +178,13 @@ these ratios undefined for variable-holding, overlapping trade/event samples.
 ## Reproduction and scope
 
 ```powershell
-python -m scripts.evaluate_v1
-python -m pytest -q -W error --tb=short
+.\.venv\Scripts\python.exe -W error -m scripts.evaluate_v1
+.\.venv\Scripts\python.exe -m pytest -q -W error --tb=short
 ```
+
+Use the existing project environment (or activate it before using `python`); a
+global interpreter may lack the pinned dependencies. The recovered EXP-001 run
+reproduced all documented table values; see its verification note for provenance.
 
 The runner requires existing AAPL/MSFT/NVDA/AMZN/GOOGL/SPY snapshots and fails if
 any are missing. It patches provider downloading to fail, prints JSON to stdout,
