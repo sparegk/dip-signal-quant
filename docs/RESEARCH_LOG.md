@@ -351,3 +351,12 @@ before further work (the generated manifest gives the authoritative count).
 Registered a separate 21-ticker diagnostic audit and manual 95-name prospective
 archive protocol, preserving all consumed EXP-001/EXP-002 evidence. No new
 diagnostic data or prospective record has been acquired at registration.
+
+## 2026-10-01 ? Diagnostic preservation implementation
+
+Added immutable local publication, raw-response quarantine, exact OHLC discrepancy
+measurements and an offline replayable audit runner. Sixteen deterministic tests
+pass with warnings as errors, including one-ULP rejection, rejected-row/vintage
+preservation, integrity/conflict checks and interruption recovery. No ingestion
+tolerance or strategy code changed. New diagnostic acquisition follows the pushed
+registration; results are recorded separately.
