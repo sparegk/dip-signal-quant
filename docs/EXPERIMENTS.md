@@ -798,3 +798,13 @@ event-minus-baseline differences. Source membership, adjusted prices, daily fill
 data exclusions, dependent samples and uncalibrated costs limit interpretation.
 
 <!-- EXP002_GENERATED_TABLES_END -->
+
+## EXP-003 ? Registered data audit and prospective archive foundation
+
+Protocol date: 2026-10-01. The full preregistration is in
+[EXP003_PROTOCOL.md](EXP003_PROTOCOL.md), with frozen settings in
+`config/exp003.json`. Part A audits all 21 OHLC exclusions and universe provenance;
+Part B defines a separate forward preservation protocol effective 2026-10-01.
+Commit and push registration before new diagnostic acquisition or collection.
+No historical performance reevaluation or outcome scoring is authorized.
+Results pending; append findings without rewriting the registered protocol.

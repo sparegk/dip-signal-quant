@@ -342,3 +342,12 @@ as well as successful results; link experiment IDs and decisions when relevant.
   pre-registered prospective paper-signal archive. Both experiments' inspected
   history is consumed. No support/scoring/ML, optimization, scanner or archive
   implementation began in this milestone.
+
+## 2026-10-01 ? EXP-003 registration
+
+Recovered clean main at f21d193; all 468 baseline tests pass with warnings as
+errors. Recorded hashes of 144 existing cache/results/config/source files locally
+before further work (the generated manifest gives the authoritative count).
+Registered a separate 21-ticker diagnostic audit and manual 95-name prospective
+archive protocol, preserving all consumed EXP-001/EXP-002 evidence. No new
+diagnostic data or prospective record has been acquired at registration.
