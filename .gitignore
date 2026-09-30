@@ -223,3 +223,6 @@ __marimo__/
 !/data/market/
 /data/market/*
 !/data/market/.gitkeep
+
+# Reproducible EXP-002 machine-readable research artifacts (regenerate via runner).
+/results/exp_002*/

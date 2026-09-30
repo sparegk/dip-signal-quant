@@ -270,3 +270,30 @@ as well as successful results; link experiment IDs and decisions when relevant.
 - Next step: Recommend separately pre-registered robustness / walk-forward work,
   broader point-in-time universe construction, and stronger fresh-holdout methodology.
   This next milestone has not begun; no parameter optimization was performed.
+
+## 2026-09-30 — EXP-002 registration and robustness infrastructure
+
+- Question: Does frozen V1 behavior generalize across previously unevaluated stocks
+  and repeated historical OOS folds, rather than just the original five stocks?
+- Work: Confirmed 419 baseline tests. Registered and pushed `ff6a99d` before
+  acquiring new stock histories. The dated official OEF source gives 101 equity
+  symbols, 95 after excluding EXP-001 issuers including GOOG. Added static/interval
+  eligibility, expanding annual folds, fold-bounded evaluation, causal SPY regimes,
+  cross-sectional distributions, frequency, concentration and a reproducible runner.
+- Implementation: Vectorized existing forward endpoints/extrema to support larger
+  controls. The entire cached EXP-001 report is exactly unchanged, excluding code
+  revision/dirty metadata. Feature/signal modules remain hash-guarded and unchanged.
+- Acquisition: Initial sandbox access prevented yfinance's local database from
+  opening, before any histories were returned. Retried acquisition with required
+  access; each missing symbol then received at most two attempts. Obtained 74 stock
+  caches; 21 symbols failed existing OHLC range validation. Kept the failures,
+  made no replacements, and did not relax ingestion checks. SPY cache is unchanged.
+  The infrastructure failure is not treated as evidence of missing market history.
+- Interpretation: No EXP-002 market outcomes inspected at this infrastructure
+  stage. Deterministic synthetic tests cover boundary censoring, prefix equivalence,
+  ticker isolation, membership, causal regimes, diagnostics and replay.
+- Validation: Complete suite with warnings treated as errors: 467 passed.
+  `pip check` found no broken requirements. Synthetic replay produced identical
+  metadata and all artifact hashes. Generated cache/results paths are ignored.
+- Next: Validate and commit the implementation, then run/report the registered
+  experiment without changing the protocol or selecting favorable stocks/parameters.

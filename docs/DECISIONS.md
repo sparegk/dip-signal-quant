@@ -218,6 +218,27 @@ universe and fresh holdout data. That milestone is not implemented or authorized
 by completion of EXP-001. Preserve local input snapshots; generated verification
 reports stay ignored by Git.
 
+## ADR-015 — Frozen cross-sectional robustness with explicit universe provenance
+
+Date: 2026-09-30. Status: Accepted before EXP-002 outcome evaluation.
+
+Decision: Freeze the EXP-001 signal/exit specification and test all 95 eligible
+names in a dated OEF current-holdings snapshot after excluding the inspected
+issuers. Use annual expanding history, full-window fold censoring, explicit
+membership masks, and predeclared SPY regimes/concentration diagnostics. Separate
+static membership from interval-format support and genuine point-in-time provenance.
+
+Reason: EXP-001's near-zero test net expectancy motivates testing generalization,
+not tuning a winner. Current constituents provide broader but survivor-biased
+cross-sectional evidence; no fresh temporal holdout is claimed. Prior publication
+of the protocol prevents adapting universe, horizons or interpretation to outcomes.
+
+Consequences: All data-quality failures and negative results remain visible.
+Per-ticker and contribution summaries accompany pooled means. Existing forward
+calculations were vectorized with unchanged output semantics for broader control
+samples; the full EXP-001 report reproduced exactly. No signal/feature change,
+parameter search, portfolio model, scanner or future-signal archive is introduced.
+
 ## ADR template
 
 - ID and title:

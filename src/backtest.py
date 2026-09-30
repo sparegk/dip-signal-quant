@@ -168,34 +168,48 @@ def compute_forward_outcomes(
         if benchmark.ticker.nunique() != 1:
             raise ValueError("benchmark must contain exactly one ticker")
         reference = benchmark.set_index("timestamp")
-    rows = []
+    parts = []
     for _, group in base.groupby("ticker", sort=False, observed=True):
         group = group.reset_index(drop=True)
         mask = (group.dip_event_v1 if selection == "events" else group.dip_ready_v1
                 if selection == "eligible" else group.dip_ready_v1 & ~group.dip_condition_v1)
-        for i in np.flatnonzero(mask.to_numpy(dtype=bool)):
-            identity = group.loc[i, list(IDENTITY)].to_dict()
-            for n in sizes:
-                row = dict(identity, horizon=n, selection=selection,
-                           status=_window_status(group, i, n), entry_timestamp=pd.NaT,
-                           end_timestamp=pd.NaT, entry_price=np.nan, forward_return=np.nan,
-                           mfe=np.nan, mae=np.nan, benchmark_return=np.nan, excess_return=np.nan)
-                if row["status"] == "completed":
-                    path = group.iloc[i + 1:i + n + 1]
-                    entry = float(path.open.iloc[0])
-                    row.update(entry_timestamp=path.timestamp.iloc[0],
-                               end_timestamp=path.timestamp.iloc[-1], entry_price=entry,
-                               forward_return=float(path.close.iloc[-1]) / entry - 1,
-                               mfe=float(path.high.max()) / entry - 1,
-                               mae=float(path.low.min()) / entry - 1)
-                    if (reference is not None and row["entry_timestamp"] in reference.index
-                            and row["end_timestamp"] in reference.index):
-                        value = (float(reference.loc[row["end_timestamp"], "close"])
-                                 / float(reference.loc[row["entry_timestamp"], "open"]) - 1)
-                        row.update(benchmark_return=value, excess_return=row["forward_return"] - value)
-                rows.append(row)
+        selected = np.flatnonzero(mask.to_numpy(dtype=bool))
+        for n in sizes:
+            part = group.loc[selected, list(IDENTITY)].reset_index(drop=True)
+            part["horizon"], part["selection"] = n, selection
+            # Compare integer offsets before indexing; never shorten an incomplete path.
+            complete_window = selected < len(group) - n
+            endpoint = np.minimum(selected + min(n, len(group)), len(group) - 1)
+            same_split = group["split"].to_numpy()[selected] == group["split"].to_numpy()[endpoint]
+            part["status"] = np.where(selected + 1 >= len(group), "no_next_bar",
+                                      np.where(~complete_window, "incomplete_window",
+                                               np.where(~same_split, "split_boundary", "completed")))
+            for column in ("entry_timestamp", "end_timestamp"):
+                part[column] = pd.Series(pd.NaT, index=part.index, dtype="datetime64[ns]")
+            for column in ("entry_price", "forward_return", "mfe", "mae", "benchmark_return", "excess_return"):
+                part[column] = np.nan
+            valid = np.flatnonzero(part.status.eq("completed").to_numpy())
+            if len(valid):
+                starts, ends = selected[valid] + 1, selected[valid] + n
+                entry = group.open.to_numpy(dtype=float)[starts]
+                part.loc[valid, "entry_timestamp"] = group.timestamp.to_numpy()[starts]
+                part.loc[valid, "end_timestamp"] = group.timestamp.to_numpy()[ends]
+                part.loc[valid, "entry_price"] = entry
+                part.loc[valid, "forward_return"] = group.close.to_numpy(dtype=float)[ends] / entry - 1
+                # Rolling extrema at each endpoint cover exactly [signal+1, signal+n].
+                part.loc[valid, "mfe"] = group.high.rolling(n).max().to_numpy()[ends] / entry - 1
+                part.loc[valid, "mae"] = group.low.rolling(n).min().to_numpy()[ends] / entry - 1
+                if reference is not None:
+                    opening = reference.open.reindex(part.loc[valid, "entry_timestamp"]).to_numpy(dtype=float)
+                    closing = reference.close.reindex(part.loc[valid, "end_timestamp"]).to_numpy(dtype=float)
+                    values = closing / opening - 1
+                    part.loc[valid, "benchmark_return"] = values
+                    part.loc[valid, "excess_return"] = part.loc[valid, "forward_return"].to_numpy() - values
+            if len(part):
+                parts.append(part)
     columns = (*IDENTITY, "horizon", "selection", "status", "entry_timestamp", "end_timestamp",
                "entry_price", "forward_return", "mfe", "mae", "benchmark_return", "excess_return")
+    rows = pd.concat(parts, ignore_index=True) if parts else []
     return _frame(rows, columns, data, kind="forward_outcomes", horizons=sizes, selection=selection,
                   entry="next_observed_open", entry_bar_counts_as_one=True,
                   benchmark=None if benchmark is None else str(benchmark.ticker.iloc[0]))
