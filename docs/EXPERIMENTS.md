@@ -294,3 +294,147 @@ Descriptive only: do not choose component weights, cutoffs, or scores from this 
 Next step: pre-register robustness and walk-forward evaluation on a broader
 point-in-time universe with fresh holdout data and better execution/capital
 accounting. This does not authorize or begin parameter optimization.
+
+## EXP-002 — Pre-registered cross-sectional robustness and walk-forward evaluation
+
+Protocol date: 2026-09-30. **Registered before downloading/evaluating the new
+stock histories. Results pending.** The protocol and `config/exp002.json` must be
+committed and pushed before the main evaluation. Subsequent results are appended;
+the protocol is not rewritten after observing outcomes. Genuine bug corrections
+must identify their effect and affected runs.
+
+### Question and frozen specification
+
+Does the previously specified DipSignal V1 exhibit similar behavior across a
+substantially broader set of stocks and repeated historical out-of-sample periods?
+This is robustness testing, not optimization. EXP-001's historical holdout is
+consumed; its mixed findings, including 0.019% mean net non-overlapping test return,
+remain evidence. New names offer fresher **cross-sectional**, not untouched future
+temporal evidence; the research concept has already been informed by history.
+
+- Freeze existing feature definitions/default windows, V1 components and rising-edge
+  semantics, 252 prior positions, minimum 126 valid values, quantile 0.20, and three
+  required components with full readiness. Configuration includes normalized-source
+  SHA-256 checks for the feature/signal modules. No grids, tuning, or stock selection
+  based on outcomes. Implementation improvements may preserve numerical semantics.
+- Entry: next observed same-ticker open after signal-date close. Horizons 1/3/5/10/20
+  observed bars, including entry bar. Gross open-to-close returns and window MFE/MAE.
+- Barriers: +10% TP, -7% SL, maximum 10 bars; conservative same-bar ordering and
+  observed-open gap fills. Report independent and non-overlapping-per-ticker modes.
+- Costs: 1 bp commission and 5 bp adverse slippage each side, fees on slipped
+  notionals; preserve EXP-001 formula. No alternative cost/exit selection.
+- Controls: all ready eligible stock dates and ready condition=false dates with
+  identical timing/censoring; SPY exact stock entry/end endpoints, no filling.
+
+### Universe and data rules
+
+**Current-constituent / static-universe robustness test; survivorship bias remains.**
+Use all rows classified US Equity in the official [iShares OEF holdings CSV](https://www.ishares.com/us/products/239723/ishares-s-p-100-etf/latest-holdings.csv)
+as of 2026-09-29, retrieved 2026-09-30. OEF tracks the S&P 100; this is a transparent
+current mega-cap/liquidity proxy, not a historical liquidity screen or an exact
+historical index reconstruction. The source has 101 equity tickers. Normalize
+space/dot share-class separators to dash (BRK B -> BRK-B), sort alphabetically,
+and exclude AAPL/MSFT/NVDA/AMZN/GOOGL plus GOOG (same already-inspected issuer).
+SPY is benchmark-only. **95 requested primary stocks**, all retained if data permit;
+no replacements for failures, no selection using charts/returns, no EXP-001 rerun
+in the primary pool. The compact source symbol list, source hash and fixed settings
+are versioned in `config/exp002.json`; raw source and market files remain ignored.
+
+Request [2016-09-29, 2026-09-29), matching the EXP-001 date span. Reuse existing
+validated market-data/cache APIs, preserve SPY's existing vintage, and download
+only missing caches. Do not refresh inputs automatically. Record hashes, retrieval
+provenance, actual coverage, and all source/holdout/data exclusions. Up to two
+download attempts per missing symbol before outcomes; no outcome-driven retries.
+Shorter histories enter only when V1 has causal readiness. Usable means at least
+one ready eligible OOS observation; no-event stocks remain in frequency and
+distribution denominators with undefined outcome means. Report each fold's
+coverage and no-ready-history exclusions; do not require survival/full history
+in every fold or fill missing bars. Corrupt caches and benchmark failures raise.
+
+Provide a reusable static universe and interval schema (`ticker`, inclusive
+`start_date`, exclusive `end_date`, null end=open-ended). Validate disjoint ordered
+intervals. Membership gates **signal-date eligibility**, not the price history;
+calculate unchanged signals on all available prior history before masking selected
+observations. Do not invent a new rising edge at admission. An accepted event's
+path may extend after membership removal; using future removal to select events
+would be retrospective selection. Fold boundaries still censor full windows.
+An interval file alone does not establish genuine point-in-time provenance.
+
+### Expanding chronological folds and boundary safety
+
+Use SPY's observed dates inside the fixed range as the common fold calendar.
+First OOS calendar year begins at the first January 1 on/after four calendar years
+from the first supplied benchmark date. This yields 2021, 2022, 2023, 2024, 2025,
+and available 2026 through 2026-09-28. Each fold uses all history from 2016-09-29
+through its last observed session; history ends strictly before its OOS start.
+Features/thresholds update causally within OOS as new completed bars arrive;
+there is no fitted model or parameter selection. Later folds expand past history.
+Exact observed start/end dates are saved with the outputs. Label 2026 partial.
+
+Require the entire horizon or configured maximum barrier window within the fold,
+even if a barrier could hit early. Censor near-boundary and terminal observations;
+never borrow the next fold's prices or fabricate liquidation. Non-overlap restarts
+at fold boundaries because all accepted prior-fold positions already exited.
+No supervised fitting occurs, so no extra arbitrary training embargo is introduced;
+future fitted models would require purging labels/embargo separately.
+
+### Predeclared analyses, metrics and interpretation
+
+- Report all five horizons by fold and pooled OOS, and per ticker. Include counts,
+  exclusions, mean/median/std, win rate, expectancy, profit factor, MFE/MAE, paired
+  benchmark counts/returns, and stock controls. Pooled values weight observations;
+  additionally report equal-ticker means, median, quartiles/IQR, positive/negative/
+  zero/undefined counts. Ticker distributions include event-minus-SPY means and
+  non-overlapping net expectancy, so positive gross returns are not the only test.
+- Report both barrier modes by fold and pooled OOS, and per ticker; TP/SL/time
+  distribution, holding bars, gross/net moments, profit factor and excursion
+  envelopes. No pooled compounding, Sharpe, Sortino, or portfolio drawdown.
+- Concentration: sum equal-notional net trade return contributions by ticker in
+  non-overlapping mode (not capital returns). Report top five positive contributors'
+  share of total positive ticker contributions, top five absolute-contribution
+  share, total positive/negative contributions, and all ticker sums. Repeat the
+  descriptive calculation for 10-bar stock-minus-SPY event contributions. Avoid
+  unstable percentages dividing by near-zero aggregate net results. Do not remove
+  losing names or construct an ex-winner strategy.
+- Frequency: per ticker/calendar-year and fold counts of observed, eligible,
+  ready, condition, and event dates, condition/ready and condition/eligible fractions,
+  event count distribution, plus 252*events/ready observations as an exposure-scaled
+  frequency. Label partial years/history; zero events are explicit.
+- Regime: signal-date SPY close >= its trailing 200-observed-close mean versus
+  below; include the completed current close, require all 200 observations, and
+  retain `unknown` when unavailable. Exact-date joins only, no filling. Report all
+  horizons and both barrier modes by regime, pooled and by fold. No other regime
+  thresholds or optimized classifiers. Report 3-versus-4 components at 10 bars.
+- Uncertainty: preserve EXP-001 circular blocks of 20 distinct observation-date
+  clusters, 2,000 draws, seed 42, 95% percentile intervals, minimum 40 clusters.
+  Same-day stocks stay together; pooled dates are sorted. These are intervals for
+  means, not formal tests of baseline differences. Cross-ticker/serial dependence,
+  structural breaks, multiple comparisons, and circular pooled blocks spanning
+  fold gaps limit inference; no claim of calibrated significance.
+- Interpretation criteria fixed now: call evidence directionally broad only if
+  10-bar event means exceed both unconditional and matched-SPY means in a strict
+  majority of available folds, and a strict majority of tickers with defined
+  paired excess means are positive. Assess barrier stability separately using
+  strict-majority positive fold and ticker net expectancy; report magnitudes and
+  every negative fold/ticker regardless. Top-five positive contribution share above
+  50% flags concentration. These are descriptive diagnostics, not optimized cutoffs,
+  statistical rejection rules, or profitability certification. Sparse intervals,
+  mixed signs, small cost margins, or large regime differences weaken conclusions.
+
+### Reproduction, artifacts and future holdout
+
+Implement `python -m scripts.evaluate_exp002` with frozen configuration, optional
+explicit download mode, and offline replay. Save fold/ticker/regime/frequency/
+distribution/concentration summaries, event/trade/control ledgers, exclusions,
+input provenance, protocol/config/code hashes and deterministic output hashes
+under ignored `results/exp_002/`. Compact documentation is generated from these
+outputs; no large generated data is committed. Verify repeat runs with identical
+cached inputs/configuration, including synthetic offline integration tests.
+
+After EXP-002, designate all inspected symbols/dates as consumed. A later approved
+paper-signal archive must preserve timestamped after-close signals, input vintages,
+universe eligibility, code/config hashes, and planned next-open execution before
+outcomes exist. Corrections append versions rather than overwrite history. Set a
+future evaluation schedule/criteria before accumulating outcomes; do not tune on
+that holdout or simulate future observations. This task documents the policy only;
+it does not implement a scanner/archive or begin the next model milestone.
