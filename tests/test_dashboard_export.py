@@ -13,6 +13,7 @@ def test_missing_artifacts_export_honest_empty_states_and_deterministic_generati
     (tmp_path/'config').mkdir()
     (tmp_path/'docs').mkdir()
     (tmp_path/'config/exp003.json').write_text(json.dumps({'effective_session':'2026-10-01','universe':['AA']}))
+    monkeypatch.setattr('scripts.build_dashboard_data.load_protocol', lambda: {'effective_session':'2026-10-01','universe':['AA']})
     (tmp_path/'docs/RESEARCH_LOG.md').write_text('## 2026-10-01 - Audit\n\n- Result: mixed.\n')
     (tmp_path/'docs/EXPERIMENTS.md').write_text('## EXP-001 - Baseline\n\nNegative evidence retained.\n')
     (tmp_path/'ROADMAP.md').write_text('- [x] Foundation\n- [ ] Live scanner\n')
@@ -40,6 +41,15 @@ def test_missing_artifacts_export_honest_empty_states_and_deterministic_generati
 def test_corrupt_inputs_fail_closed(tmp_path):
     file=tmp_path/'input.csv';file.write_bytes(b'actual')
     with pytest.raises(ValueError,match='hash mismatch'): checked_bytes(file,digest(b'other'))
+
+
+def test_export_refuses_configuration_drift_before_publishing(tmp_path, monkeypatch):
+    (tmp_path/'config').mkdir()
+    (tmp_path/'config/exp003.json').write_text(json.dumps({'signal_parameters':{'quantile':.3}}))
+    monkeypatch.setattr('scripts.build_dashboard_data.load_protocol',lambda:{'signal_parameters':{'quantile':.2}})
+    with pytest.raises(ValueError,match='differs from frozen registration'):
+        build_dashboard(tmp_path,tmp_path/'output',as_of='2026-10-01T00:00:00Z')
+    assert not (tmp_path/'output').exists()
 
 
 def test_comparison_keeps_paired_spy_excess_and_independent_baseline_differences():

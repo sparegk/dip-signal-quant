@@ -310,3 +310,25 @@ provide local consistency, not independent timestamps or tamper-proof evidence.
 The first eligible session is October 1; review is barred until the registered
 future date/coverage gate and requires separate authorization. No outcome scoring,
 live scanning, broker execution or strategy tuning is implemented.
+
+## ADR-019 - Present verified research through an offline static frontend
+
+Date: 2026-10-01. Status: Accepted under the research frontend task.
+
+Decision: Use React/TypeScript, Vite, Recharts and plain CSS. A read-only Python
+adapter verifies preserved result/input hashes and exports compact, versioned JSON.
+Load one ticker history on demand and keep signal-time fields separate from future
+outcomes. Render experiment protocols and the research timeline from canonical
+Markdown instead of copying their results into UI components.
+
+Reason: The interface should expose quantitative evidence and failed hypotheses,
+without becoming a second research engine or implying a live trading service.
+Existing Python APIs remain the source of truth. A static interface requires no
+additional backend service, database, credentials or scheduler.
+
+Consequences: Gross/net, event/trade, consumed historical OOS and genuine
+prospective classifications are explicit. Missing artifacts fail honestly. The
+archive is verified and displayed, never collected or scored. Browser exports,
+raw data, screenshots and build output remain ignored. Hashes provide consistency
+checks, not independent authenticity. No frozen strategy, protocol, exclusion,
+historical metric or cache is changed. Public deployment is separate work.

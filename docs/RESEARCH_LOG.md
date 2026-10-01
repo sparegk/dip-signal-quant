@@ -423,3 +423,41 @@ prospective observations can yet be collected.
   validation. Recommend separately authorized adjustment-arithmetic/identity and
   historical-membership validation, and operation of the registered manual archive
   without peeking at performance. No next research milestone was begun.
+
+## 2026-10-01 - Local quantitative research terminal
+
+- Scope: Added an offline React/TypeScript/Vite research frontend with all eleven
+  requested views. Recharts supplies baseline, fold, distribution, frequency,
+  price, feature and component-activation visualizations; plain CSS provides a
+  restrained desktop layout and collapsible mobile navigation.
+- Data: Added `scripts/build_dashboard_data.py` with frozen-protocol checks,
+  original artifact/snapshot verification, immutable generation files and atomic
+  manifest publication. The browser verifies hashes and loads one ticker at a
+  time. Python remains the quantitative source of truth; no market acquisition,
+  parameter search or new performance specification is run by the adapter.
+- Explorer: Preserved EXP-002 observation/event/trade files and existing EXP-001
+  APIs provide 79 ticker histories across the experiments. EXP-001 saved summary
+  statistics remain unchanged. Signal-time values and prior thresholds are
+  separated from future outcomes; decision-panel charts end at the selected
+  session. All censoring and both trade modes remain visible.
+- Integrity: Failed EXP-002 breadth, negative 2022, losing stocks, static-universe
+  selection and all 21 OHLC exclusions remain visible. The archive shows the 95
+  historical replay records separately from zero genuinely prospective records,
+  with non-events, unavailable inputs, provenance and unpopulated outcome fields.
+  No collection, outcome scoring or repair occurs in the frontend.
+- Validation: Full backend suite **546 passed**, warnings treated as errors;
+  **9 frontend tests passed**; TypeScript and production build passed. Two browser
+  scenarios exercised all views, real artifact loading, ticker/component/feature
+  selection, archive separation and mobile navigation. Desktop/mobile screenshots
+  were inspected. `pip check` passed. A Windows preview-process teardown stalled
+  after both browser scenarios passed; the identified preview process was stopped
+  explicitly, with no application or research failure.
+- Preservation: Verified all 144 files in the existing frozen inventory unchanged,
+  plus the complete experiment registry and frozen config/research modules against
+  recovered commit `00e8fc4`. Generated exports, datasets, screenshots, dependencies
+  and build outputs remain ignored. No research result is copied into TypeScript.
+- Decision/next: The local presentation foundation is complete. See ADR-019 and
+  `docs/DASHBOARD.md`. Recommend a separately reviewed publication subset and
+  artifact-availability workflow if a public recruiter-facing demo is desired.
+  No API, deployment, live scanner, trading integration or next research milestone
+  has begun.

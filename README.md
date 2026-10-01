@@ -48,13 +48,21 @@ excess means over matched SPY: the predeclared cross-sectional breadth criterion
 21 OHLC data exclusions and negative years/tickers remain documented. Both historical
 samples are consumed. Scoring, support and prospective validation remain future work.
 
+The [local quantitative research terminal](docs/DASHBOARD.md) now presents this
+evidence, historical signal anatomy, EXP-003 data-quality findings and the verified
+paper archive. It is a read-only frontend; live scanning and alerts are still
+future work. [Run the site locally](#quantitative-research-terminal).
+
 Core stack: Python, NumPy, pandas, PyArrow/Parquet, yfinance, and pytest. Polars
 will be used where processing scale justifies it; later research may use VectorBT,
 Numba, scikit-learn/XGBoost, and DuckDB when needed.
 
 ## Project layout
 
-- `src/`: data infrastructure and future research modules.
+- `src/`: data, features, frozen signals, evaluation, robustness and paper archive.
+- `frontend/`: React/TypeScript research terminal and UI/browser tests.
+- `scripts/`: reproducible research runners, reporting and offline dashboard export.
+- `config/`: frozen experiment and collection protocols.
 - `tests/`: deterministic tests, with network calls mocked.
 - `data/`: generated local datasets, excluded from Git.
 - `notebooks/`: exploratory research; `results/`: research artifacts.
@@ -149,3 +157,23 @@ vintages, non-events, failures and publication timing under the
 scoring. Signals before the effective session, historical replay, stale inputs
 and late runs do not become fresh temporal holdout evidence. Generated archive
 and quarantine contents remain ignored under `data/`.
+
+## Quantitative research terminal
+
+The [local research frontend](docs/DASHBOARD.md) makes the existing evidence
+explorable: baseline comparisons, annual folds, ticker distributions, concentration,
+regimes, signal anatomy, historical outcomes, data-quality exclusions and the manual
+paper archive. Failed criteria and negative results remain visible. It does not
+collect signals, tune V1 or execute trades.
+
+```powershell
+.\.venv\Scripts\python.exe -m scripts.build_dashboard_data
+cd frontend
+npm.cmd ci
+npm.cmd run dev
+```
+
+Open **http://127.0.0.1:5173**. The offline exporter reads preserved local research
+artifacts; a fresh clone without them shows explicit unavailable states and the
+canonical documentation. No demonstration statistics replace missing data.
+See [frontend operation and verification](frontend/README.md).

@@ -23,7 +23,8 @@
 - [ ] Historical signal archive
 - [ ] Forward paper-signal engine
 - [ ] Live scanner
-- [ ] API/dashboard
+- [x] Local quantitative research dashboard and offline artifact adapter
+- [ ] Research API / hosted dashboard deployment
 - [ ] Notifications
 - [ ] Paper trading integration
 
@@ -39,3 +40,7 @@ outcomes. Recommend a separately authorized, data-only validation of adjustment
 arithmetic and historical identity/membership sources, plus operation of the
 registered manual archive without performance peeking. No optimization, scoring,
 ML, continuous scanner or trading milestone is authorized by this completion.
+
+The local frontend visualizes preserved research and collection records. It adds
+no new strategy, historical performance evaluation, live collection or prospective
+outcome scoring. Public hosting and an API remain separate future work.

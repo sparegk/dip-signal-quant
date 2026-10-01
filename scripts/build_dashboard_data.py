@@ -20,7 +20,7 @@ import pandas as pd
 from src.backtest import assign_research_splits, compute_forward_outcomes, simulate_barrier_trades
 from src.data import load_parquet
 from src.features import build_features
-from src.paper_archive import coverage, verify_run
+from src.paper_archive import coverage, load_protocol, verify_run
 from src.preservation import canonical_json, digest, publish, read_record
 from src.signals import build_signals
 
@@ -295,6 +295,8 @@ def build_dashboard(root: Path = ROOT, output: Path | None = None, *, as_of: str
     output = output or root / "frontend/public/data"
     as_of = as_of or datetime.now(timezone.utc).isoformat()
     config = json.loads((root / "config/exp003.json").read_bytes())
+    if canonical_json(config) != canonical_json(load_protocol()):
+        raise ValueError("Dashboard configuration differs from frozen registration")
     with patch("yfinance.download", side_effect=AssertionError("Dashboard export is strictly offline")):
         exp002, series2 = export_exp002(root)
         exp001, series1 = export_exp001(root, config)
