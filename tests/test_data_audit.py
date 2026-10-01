@@ -127,3 +127,9 @@ def test_audit_runner_offline_replay_and_failure_records(raw, tmp_path, monkeypa
     assert runner.run_audit(root) == first
     assert first["summaries"][1]["diagnostic_status"] == "acquisition_failed"
     assert all(not s["original_raw_preserved"] for s in first["summaries"])
+    from scripts.report_exp003 import render_audit
+    table = render_audit(root)
+    assert '| ABT | 2 | 0 |' in table and '| BMY | unavailable |' in table
+    (root/'violations.csv').write_bytes(b'changed')
+    with pytest.raises(ValueError, match='table hash mismatch'):
+        render_audit(root)

@@ -799,7 +799,7 @@ data exclusions, dependent samples and uncalibrated costs limit interpretation.
 
 <!-- EXP002_GENERATED_TABLES_END -->
 
-## EXP-003 ? Registered data audit and prospective archive foundation
+## EXP-003 - Registered data audit and prospective archive foundation
 
 Protocol date: 2026-10-01. The full preregistration is in
 [EXP003_PROTOCOL.md](EXP003_PROTOCOL.md), with frozen settings in
@@ -808,3 +808,60 @@ Part B defines a separate forward preservation protocol effective 2026-10-01.
 Commit and push registration before new diagnostic acquisition or collection.
 No historical performance reevaluation or outcome scoring is authorized.
 Results pending; append findings without rewriting the registered protocol.
+
+### EXP-003 completion findings (appended 2026-10-01)
+
+Registration was pushed in `8c55fbc` before new diagnostic acquisition or archive
+collection. Its protocol/configuration remain unchanged. Historical quality audit
+and prospective preservation are separate parts; **no new strategy performance
+evaluation** occurred. The complete findings and reproducible tables are in
+[DATA_QUALITY_AUDIT.md](DATA_QUALITY_AUDIT.md); source/identity findings are in
+[UNIVERSE_PROVENANCE.md](UNIVERSE_PROVENANCE.md).
+
+Part A: original rejected raw responses are unavailable. After a fully preserved
+sandbox database-access failure, a separately approved acquisition obtained new
+diagnostic vintages for all 21 names over the original requested date range.
+Twelve still fail and nine now pass the unchanged strict validator. There are 29
+affected rows across 52,752 rows, all one-binary64-spacing close-vs-boundary
+differences. This is consistent with an adjustment round-trip mechanism, not proof
+of the original failures' cause. No repair, tolerance change, dropped row, cache
+refresh, replacement or reinsertion into EXP-002 occurred. All 21 per-ticker results
+and offending dates are reported, with exact OHLC values in ignored artifacts.
+
+The preserved OEF CSV reproduces the exact 101-to-95 selection. Historical
+membership/knowledge dates and comprehensive permanent security identities remain
+missing. BNY's ticker change and GEV/SNDK trading-history distinctions illustrate
+why current symbols and first provider observations are not PIT provenance.
+Official/provider historical sources were researched without purchasing data or
+accepting contractual terms. No historical membership reconstruction is claimed.
+
+Part B: [PAPER_ARCHIVE.md](PAPER_ARCHIVE.md) describes the tested manual command,
+all-95-name protocol, October 1 effective session, UTC timestamps, XNYS/DST/holiday
+deadlines, full snapshots, append-only records, idempotency, linked corrections,
+integrity checks and interrupted-run recovery. There is no scheduler, scanner or
+outcome evaluator. First prospective performance review is no earlier than
+2027-04-01, subject to the registered coverage gate and separate authorization;
+if unmet, the next registered review date is 2027-10-01.
+
+An operational replay of the consumed **2026-09-28** session preserved **95
+retrospective records: 74 available decisions and 21 explicit unavailable-input
+records**. Input bytes were copied into the separate ignored archive; deterministic
+recalculation matched the original decision values. Repeating the same run key
+created no new run, timestamp or signal. No returns or future outcomes were read.
+**Genuinely prospective records: zero.** The first registered session had not
+closed during this milestone; no observations were fabricated or awaited.
+
+EXP-001's approximately 0.019% test mean net and EXP-002's 0.510% pooled mean net
+remain consumed descriptive findings. EXP-002's negative 2022, 22 negative ticker
+expectancies and failed breadth criterion (36/74 positive ticker SPY excess means)
+remain unchanged. The data audit neither validates profitability nor reverses that
+criterion. Remaining limitations include survivor selection, missing original raw
+responses, revised adjusted prices, identity/coverage gaps, dependent outcomes and
+unverified future fills/costs. The archive adds reproducibility, not an established
+edge or an independently witnessed record.
+
+Verification: 539 tests passed with warnings treated as errors; `pip check` passed.
+The audit table regenerates from hash-verified raw snapshots; the EXP-002 tables
+still match their preserved artifacts. All 144 frozen files in the recovery
+inventory are unchanged. Generated diagnostics/archive inputs and records remain
+ignored. Only the audit/manual-archive foundation is marked complete on the roadmap.

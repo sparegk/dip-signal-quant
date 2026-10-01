@@ -343,7 +343,7 @@ as well as successful results; link experiment IDs and decisions when relevant.
   history is consumed. No support/scoring/ML, optimization, scanner or archive
   implementation began in this milestone.
 
-## 2026-10-01 ? EXP-003 registration
+## 2026-10-01 - EXP-003 registration
 
 Recovered clean main at f21d193; all 468 baseline tests pass with warnings as
 errors. Recorded hashes of 144 existing cache/results/config/source files locally
@@ -352,7 +352,7 @@ Registered a separate 21-ticker diagnostic audit and manual 95-name prospective
 archive protocol, preserving all consumed EXP-001/EXP-002 evidence. No new
 diagnostic data or prospective record has been acquired at registration.
 
-## 2026-10-01 ? Diagnostic preservation implementation
+## 2026-10-01 - Diagnostic preservation implementation
 
 Added immutable local publication, raw-response quarantine, exact OHLC discrepancy
 measurements and an offline replayable audit runner. Sixteen deterministic tests
@@ -361,7 +361,7 @@ preservation, integrity/conflict checks and interruption recovery. No ingestion
 tolerance or strategy code changed. New diagnostic acquisition follows the pushed
 registration; results are recorded separately.
 
-## 2026-10-01 ? Session timing foundation
+## 2026-10-01 - Session timing foundation
 
 Added exchange-calendars 4.13.2 (and its required dependencies) to obtain explicit
 XNYS sessions, holidays, early closes and DST-aware next-open deadlines. Twenty
@@ -371,7 +371,7 @@ The first diagnostic attempt failed yfinance database access in the sandbox; all
 21 failures remain in data/exp003/diagnostic. An approved infrastructure retry
 uses data/exp003/diagnostic_authorized without replacing the failed records.
 
-## 2026-10-01 ? Manual archive foundation
+## 2026-10-01 - Manual archive foundation
 
 Added the frozen-config manual collector, immutable run/input/result/receipt records,
 atomic session/version reservations, explicit failures/non-events, post-publication
@@ -383,3 +383,43 @@ archive edge cases bring its targeted suite to 31 passing tests. Publication tha
 crosses the next open is late; old caches remain retrospective. The first eligible
 signal session (October 1) has not closed at implementation time, so no genuinely
 prospective observations can yet be collected.
+
+## 2026-10-01 - EXP-003 audit findings and final verification
+
+- Registration: `8c55fbc` was pushed before acquisition. Configuration and the
+  standalone protocol remain byte-equivalent after newline normalization.
+- Diagnostic evidence: the separately approved retry preserved 21 new adjusted
+  response vintages, 52,752 rows total. Twelve tickers have 29 one-spacing OHLC
+  close-boundary violations; nine now pass. Original rejected responses were not
+  preserved, so original offending values/causes cannot be reconstructed. No
+  tolerance, price, row, original exclusion or frozen experiment output changed.
+- Reporting: Added a hash-verifying audit renderer, all-21-name table with dates,
+  numerical observations and performance-independent remediation recommendation.
+  Retained full raw frames and exact row-level OHLC values in ignored quarantine.
+- Provenance: Re-read the original OEF CSV and confirmed its hash and exact
+  101-to-95 selection. Documented symbol/share-class/spin-off limitations, and
+  official S&P, Norgate and CRSP historical-data options. Norgate documents no
+  announcement dates and omits temporary inclusions. No paid dataset, contract
+  or PIT membership reconstruction was acquired or claimed.
+- Archive exercise: Consumed September 28 replay preserved all 95 names, with
+  74 available decisions and 21 unavailable inputs. All are retrospective, none
+  prospective. Offline decision replay matches; repeating the same run ID keeps
+  the original receipt and one run intent. The October 1 signal session had not
+  closed, so no genuine prospective collection was possible during this task.
+- Final hardening: Direct archive run creation now checks the registered config,
+  as well as the CLI guard, preventing callers from bypassing the frozen settings.
+  Four parameter-drift regressions pass. No change to V1 semantics or registration.
+- Validation: **539 tests passed**, complete suite with warnings as errors.
+  `pip check` reports no broken requirements. A targeted earlier rerun encountered
+  a Windows pytest temporary-directory permission failure; approved access
+  resolved it without test changes. Both experiment documentation checks pass.
+  Verified all 144 frozen cache/result/config/source files unchanged, and the
+  entire prior EXP-001/EXP-002 registry content remains an unchanged prefix.
+- Git/data policy: Raw diagnostics, archived market bytes and generated records
+  remain ignored. Only data/results directory placeholders are tracked. Frozen
+  data, feature, signal, universe, backtest and robustness modules are unchanged.
+- Interpretation/next: This milestone establishes an auditable manual collection
+  foundation, not profitability, PIT reconstruction or prospective outcome
+  validation. Recommend separately authorized adjustment-arithmetic/identity and
+  historical-membership validation, and operation of the registered manual archive
+  without peeking at performance. No next research milestone was begun.

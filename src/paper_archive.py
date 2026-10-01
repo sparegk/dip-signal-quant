@@ -54,6 +54,8 @@ def begin_run(root: Path, run_id: str, *, session: str, mode: str, config: dict,
               corrects: str | None = None, reason: str | None = None,
               clock: Callable[[], str] = utc_now) -> dict:
     """Publish intent before acquisition. Same arguments/key return the existing intent."""
+    if canonical_json(config) != canonical_json(load_protocol()):
+        raise ValueError("Run configuration differs from frozen registration")
     if mode not in {"collect", "replay"}:
         raise ValueError("Unknown collection mode")
     if bool(corrects) != bool(reason):

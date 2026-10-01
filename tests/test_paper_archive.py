@@ -13,9 +13,11 @@ from src.signals import build_signals
 
 
 @pytest.fixture
-def fixture(tmp_path):
+def fixture(tmp_path,monkeypatch):
     config = archive.load_protocol()
     config['universe'] = ['ABT', 'BMY']
+    registered = deepcopy(config)
+    monkeypatch.setattr(archive,'load_protocol',lambda:deepcopy(registered))
     dates = pd.bdate_range(end='2026-10-01', periods=300).astype('datetime64[ns]')
     cache = tmp_path / 'cache'
     frames = {}
@@ -307,3 +309,10 @@ def test_frozen_source_guard_independent_of_configuration(tmp_path,monkeypatch):
     monkeypatch.setattr(archive,'ROOT',tmp_path)
     with pytest.raises(ValueError,match='Frozen V1 source'):
         archive.load_protocol()
+
+
+@pytest.mark.parametrize('field,value',[('quantile',.3),('lookback',200),('min_history',100),('required_components',4)])
+def test_direct_archive_api_cannot_change_frozen_parameters(fixture,field,value):
+    fixture[2]['signal_parameters'][field]=value
+    with pytest.raises(ValueError,match='frozen registration'):
+        start(fixture)

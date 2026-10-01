@@ -30,4 +30,100 @@ Readers ignore temporary `.pending-*` files; no partial record is promoted.
 SHA-256 checks detect corruption relative to the recorded manifest, not deliberate
 rewriting of both data and hashes. Keep independent backups for stronger protection.
 
-Findings will be appended after running the registered audit.
+## Findings from the new diagnostic vintage
+
+Registration `8c55fbc` preceded acquisition. The sandbox attempt failed to open
+_yfinance_'s local database for all 21 names; those failure records remain under
+`data/exp003/diagnostic/`. A separately approved infrastructure retry wrote
+`data/exp003/diagnostic_authorized/`. It obtained all 21 responses, each with 2,512
+rows for 2016-09-29 through 2026-09-28. Retrievals span **2026-09-30
+21:47:42.721249-21:48:00.786256 UTC** (October 1 in the project timezone).
+The successful retry did not replace the failed attempts or any frozen cache.
+
+Twelve names still fail strict OHLC range validation and nine now pass. There are
+**29 affected rows out of 52,752 returned rows (0.054974%)**. All 29 violations
+are close-vs-high/low inequalities of **exactly one binary64 spacing unit**.
+Absolute gaps range from 1.7763568394002505e-15 to 2.842170943040401e-14 adjusted
+price units; relative gaps range from 1.1193973341314382e-16 to
+1.965094983158952e-16. There are no observed open-outside-range or low-above-high
+violations in this vintage. Dates span 2016-10-07 through 2020-09-09.
+
+The table below is generated and checked against preserved raw bytes by
+`scripts/report_exp003.py`; complete OHLC values for every failed relation are
+in the ignored `violations.csv`, with full pre-validation frames in the object
+store. A passing new response does not invalidate an original rejection.
+
+| Ticker | Rows | Affected | Percent | Maximum absolute gap | Maximum relative gap | Failed rules | Sessions |
+| --- | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| ABT | 2512 | 1 | 0.03981% | 3.5527e-15 | 1.1194e-16 | close_lt_low | 2016-11-30 |
+| BMY | 2512 | 0 | 0.00000% | — | — | none | none |
+| CMCSA | 2512 | 0 | 0.00000% | — | — | none | none |
+| CVS | 2512 | 0 | 0.00000% | — | — | none | none |
+| DUK | 2512 | 1 | 0.03981% | 7.1054e-15 | 1.2036e-16 | close_gt_high | 2017-08-02 |
+| HD | 2512 | 0 | 0.00000% | — | — | none | none |
+| JNJ | 2512 | 0 | 0.00000% | — | — | none | none |
+| KO | 2512 | 2 | 0.07962% | 3.5527e-15 | 1.1904e-16 | close_lt_low | 2016-11-30, 2016-12-28 |
+| LMT | 2512 | 2 | 0.07962% | 2.8422e-14 | 1.2211e-16 | close_gt_high | 2017-08-04, 2017-11-02 |
+| MMM | 2512 | 0 | 0.00000% | — | — | none | none |
+| MO | 2512 | 4 | 0.15924% | 7.1054e-15 | 1.9651e-16 | close_gt_high, close_lt_low | 2017-02-06, 2017-03-30, 2019-10-17, 2019-10-29 |
+| PFE | 2512 | 1 | 0.03981% | 3.5527e-15 | 1.5333e-16 | close_lt_low | 2018-02-28 |
+| QCOM | 2512 | 0 | 0.00000% | — | — | none | none |
+| RTX | 2512 | 1 | 0.03981% | 7.1054e-15 | 1.2186e-16 | close_gt_high | 2017-09-19 |
+| SO | 2512 | 1 | 0.03981% | 3.5527e-15 | 1.1406e-16 | close_gt_high | 2018-03-09 |
+| T | 2512 | 8 | 0.31847% | 1.7764e-15 | 1.2997e-16 | close_gt_high, close_lt_low | 2016-10-14, 2016-11-21, 2017-06-29, 2018-01-26, 2018-02-08, 2018-02-27, 2018-07-24, 2020-09-09 |
+| TXN | 2512 | 1 | 0.03981% | 7.1054e-15 | 1.2328e-16 | close_gt_high | 2017-01-11 |
+| UNP | 2512 | 0 | 0.00000% | — | — | none | none |
+| UPS | 2512 | 0 | 0.00000% | — | — | none | none |
+| VZ | 2512 | 5 | 0.19904% | 3.5527e-15 | 1.27e-16 | close_gt_high, close_lt_low | 2016-10-07, 2016-11-15, 2016-12-21, 2017-08-03, 2018-03-06 |
+| XOM | 2512 | 2 | 0.07962% | 7.1054e-15 | 1.4248e-16 | close_lt_low | 2017-12-29, 2019-10-07 |
+
+The defects are sparse (1-8 isolated rows per affected ticker, at most 0.31847%
+of its history), not a whole-history price-order inversion. The same one-spacing
+close-boundary pattern recurs across twelve names and several years, suggesting
+a shared numerical mechanism rather than twelve established corporate-action
+failures. That is an inference, not proof of the original cause.
+
+For example, the newly retrieved ABT row on 2016-11-30 has open/high
+32.30463015773228, low 31.73773574829102 and close 31.737735748291016. The close is
+below the low by 3.552713678800501e-15. Both numbers are preserved unchanged.
+
+## Facts, hypotheses and remediation recommendation
+
+Observed implementation fact: installed yfinance 1.7.0 `utils.auto_adjust` computes
+`ratio = Adj Close / Close`, multiplies Open/High/Low by that ratio, but copies
+Adj Close directly to output Close. A division/multiplication round trip at a
+raw close equal to a raw high/low can differ from the directly retained adjusted
+close by one floating-point step. The observed pattern is consistent with this
+mechanism. The returned raw DataFrame is already yfinance-adjusted; it does not
+contain the original unadjusted OHLC/Adj Close pairs or HTTP response, so this
+mechanism is **not proven for these individual rows**. Pure positive scaling
+would preserve inequalities in exact arithmetic.
+
+Provider rounding/revisions, changed adjustment factors, and inconsistent source
+fields remain possible. The nine now-passing names establish vintage differences
+in the validation verdict, not which old values changed or why. No evidence here
+establishes a large malformed market price, an invalid corporate action, or a
+particular ticker-history issue as the cause. Original rejected bytes are absent.
+
+Recommendation: retain strict rejection for this milestone. In a separately
+registered engineering change, preserve paired unadjusted OHLC, adjusted close,
+adjustment factors and the adjustment calculation; reproduce the one-step error
+on controlled fixtures and independent provider evidence. Only then consider an
+explicit, narrowly bounded floating-point comparison policy, with recorded
+violations and tests rejecting real price errors. It must not silently clip/fill
+or delete data, and must be evaluated independently of strategy returns. No
+numeric tolerance is selected or changed here. Large discrepancies, corporate
+identity issues and unsupported schemas need a separate investigation, not the
+same automatic numerical treatment.
+
+EXP-002's original 21 exclusions, 74-stock sample, outputs and failed breadth
+criterion remain unchanged. No signal parameters, outcomes or historical
+performance were recalculated. A future data-policy change would create a new,
+explicitly labeled vintage/experiment, not retroactively repair EXP-002.
+
+Reproduce/check (offline after the recorded acquisition):
+
+```powershell
+.\.venv\Scripts\python.exe -W error -m scripts.audit_exp003 --root data/exp003/diagnostic_authorized
+.\.venv\Scripts\python.exe -m scripts.report_exp003 --check-doc docs/DATA_QUALITY_AUDIT.md
+```

@@ -265,3 +265,48 @@ next, not implemented or treated as authorized model/scanner development.
 - Reason:
 - Consequences and limitations:
 - Supersedes (if applicable):
+
+## ADR-017 - Diagnose data vintages without retroactively repairing experiments
+
+Date: 2026-10-01. Status: Accepted under EXP-003 registration `8c55fbc`.
+
+Decision: Preserve complete newly returned adjusted DataFrames before validation,
+separately from the frozen historical market cache. Label new acquisitions as new
+vintages because original rejected EXP-002 responses were not preserved. Keep
+strict OHLC checks and all original exclusions/results unchanged. Report exact
+relations, sessions, values, relative errors and floating-point spacing units.
+
+Reason: All 29 newly observed violations are one-spacing close-boundary differences,
+but nine of the 21 formerly excluded names now pass. These facts motivate a
+numerical/provider investigation, not a strategy-driven sample repair. The original
+bytes cannot be reconstructed from current responses. No ingestion defect requiring
+a behavior change was established in this milestone.
+
+Consequences: Recommend separately authorized paired unadjusted/adjusted evidence
+and identity/membership validation before any explicit numerical-policy change.
+Current constituent dates and interval schemas do not establish PIT provenance.
+No returns were recalculated, no tolerances changed and no losing names removed.
+
+## ADR-018 - Preserve decisions before execution with explicit archive finalization
+
+Date: 2026-10-01. Status: Accepted under EXP-003 registration `8c55fbc`.
+
+Decision: Use a manually invoked, collection-only archive for all 95 registered
+names. Pin XNYS calendar support rather than infer sessions from weekdays. Publish
+immutable intent, input and result records; only a receipt timestamp sampled after
+the result write can establish timely publication. Preserve snapshot bytes, source
+provenance, code/config hashes and every non-event/failure. Frozen configuration is
+enforced at both the CLI and direct run-creation API.
+
+Reason: A timestamp assigned before a long download/write can falsely claim a
+signal existed before the next open. Mutable caches and absent runs cannot serve
+as an auditable temporal holdout. An explicit late/stale/replay/correction record
+is preferable to silently reconstructing an apparently timely signal.
+
+Consequences: Identical retries return the original; changed vintages use linked
+corrections and never replace the primary cohort. Interrupted runs remain
+ineligible and recover only as explicit abandoned attempts. Hashes/atomic writes
+provide local consistency, not independent timestamps or tamper-proof evidence.
+The first eligible session is October 1; review is barred until the registered
+future date/coverage gate and requires separate authorization. No outcome scoring,
+live scanning, broker execution or strategy tuning is implemented.

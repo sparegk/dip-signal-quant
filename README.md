@@ -137,3 +137,15 @@ membership intervals, replay and future-holdout policy. Generated outputs under
 `results/exp_002/` are ignored; static constituents are not point-in-time membership.
 The document check uses the preserved EXP-002 artifacts; a rerun at a newer commit
 changes recorded execution provenance even when numerical tables reproduce.
+
+EXP-003 audits the 21 OHLC exclusions without repairing data or reevaluating
+performance. See the [data-quality findings](docs/DATA_QUALITY_AUDIT.md) and
+[universe provenance audit](docs/UNIVERSE_PROVENANCE.md). Frozen EXP-001/EXP-002
+inputs and their mixed/negative findings remain unchanged.
+
+The [manual paper-signal archive](docs/PAPER_ARCHIVE.md) preserves full input
+vintages, non-events, failures and publication timing under the
+[EXP-003 registration](docs/EXP003_PROTOCOL.md). It has no scheduler or outcome
+scoring. Signals before the effective session, historical replay, stale inputs
+and late runs do not become fresh temporal holdout evidence. Generated archive
+and quarantine contents remain ignored under `data/`.

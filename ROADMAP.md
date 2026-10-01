@@ -14,6 +14,9 @@
 - [ ] Dynamic exit/risk research
 - [x] Frozen V1 historical walk-forward infrastructure and static-universe EXP-002
 - [ ] Genuine point-in-time universe/data validation
+- [x] OHLC exclusion and universe-provenance audit (EXP-003; no data repair)
+- [x] Pre-registered manual paper-signal archive foundation (EXP-003; collection only)
+- [ ] Prospective outcome evaluation at a predeclared review
 - [ ] Parameter sensitivity testing
 - [x] Predeclared causal SPY regime diagnostics (EXP-002)
 - [ ] ML ranking model
@@ -30,5 +33,9 @@ not validated profitable strategies or allocated portfolio simulations. EXP-002
 uses 74 usable stocks from 95 requested current holdings; survivor selection and
 data-quality exclusions remain. Its cross-sectional excess-breadth criterion fails
 despite positive pooled results. Both experiments' inspected periods are consumed.
-Recommended next work is historical universe/data-quality validation and a separately
-pre-registered prospective paper-signal archive. That work has not begun.
+EXP-003 completed the exclusion/provenance audit and a manually invoked prospective
+archive foundation. It did not reconstruct a PIT universe or evaluate future
+outcomes. Recommend a separately authorized, data-only validation of adjustment
+arithmetic and historical identity/membership sources, plus operation of the
+registered manual archive without performance peeking. No optimization, scoring,
+ML, continuous scanner or trading milestone is authorized by this completion.
