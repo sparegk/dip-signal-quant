@@ -325,9 +325,8 @@ export function Backtest({ data }: { data: Dashboard }) {
         </div>
       </div>
       <Note>
-        Independent analysis allows overlapping events. Non-overlapping mode suppresses new entries
-        while the same ticker is already held. Outcomes that lack a complete required window are
-        censored, including at fold boundaries.
+        Independent mode counts every event. Non-overlapping mode holds one trade per stock at a
+        time. Incomplete outcome windows are excluded.
       </Note>
       {r.status !== 'available' ? (
         <Missing />
@@ -352,7 +351,7 @@ export function Backtest({ data }: { data: Dashboard }) {
               caption="TP SL time exit counts"
             />
           </Section>
-          <Section title="Excluded opportunities remain visible">
+          <Disclosure title="Which opportunities were excluded?">
             <DataTable
               rows={r.tables.trade_oos_summary}
               columns={[
@@ -368,18 +367,18 @@ export function Backtest({ data }: { data: Dashboard }) {
               ]}
               caption="Trade censoring and overlap"
             />
-          </Section>
+          </Disclosure>
         </>
       )}
-      <Section title="What these ledgers cannot tell you">
+      <Disclosure title="Why these are not portfolio returns">
         <p>
-          <Help name="Sharpe" />, <Help name="Sortino" />, capital drawdown and compound portfolio
-          returns are not defined for these pooled event ledgers. Overlapping exposure, capital
-          allocation and portfolio constraints would need a separately specified experiment.
+          These are individual trade outcomes. They do not track invested capital, simultaneous
+          holdings or a portfolio balance. <Help name="Sharpe" /> and <Help name="Sortino" /> are
+          therefore not reported.
         </p>
         <p>
-          Barrier excursions are restricted by execution-path conventions; daily OHLC cannot reveal
-          intraday ordering. The strategy and cost model remain illustrative and uncalibrated.
+          Daily prices cannot reveal the order of every move within a session. The stop/target and
+          cost assumptions still need independent validation.
         </p>
         <a href={docURL('BACKTESTING')}>Read execution and metric definitions ↗</a>
         <details>
@@ -395,7 +394,7 @@ export function Backtest({ data }: { data: Dashboard }) {
             ))}
           </dl>
         </details>
-      </Section>
+      </Disclosure>
     </>
   )
 }
@@ -427,6 +426,15 @@ export function Roadmap({ data }: { data: Dashboard }) {
       <PageTitle eyebrow="Scope & status" title="What exists. What remains open.">
         Status comes from ROADMAP.md. Future functionality is not implied by this interface.
       </PageTitle>
+      <div className="research-proposal">
+        <span className="eyebrow">Proposed next study · not run</span>
+        <h2>Large-cap tech and AI</h2>
+        <p>
+          Test whether the same signal behaves differently in a clearly defined group. Choose
+          membership before looking at group returns; keep other sectors as a comparison.
+        </p>
+        <a href={docURL('RESEARCH_FOCUS')}>Read the short proposal →</a>
+      </div>
       <div className="roadmap-grid">
         {[
           ['completed', 'Completed'],

@@ -461,3 +461,23 @@ prospective observations can yet be collected.
   artifact-availability workflow if a public recruiter-facing demo is desired.
   No API, deployment, live scanner, trading integration or next research milestone
   has begun.
+
+## 2026-10-01 - Short research briefs and learning support
+
+- Request: Make the site easier to understand, with less text and smaller,
+  meaningful commits. Saved these preferences in `AGENTS.md`.
+- Change: Experiments opens with four short answers. Full records and detailed
+  tables are optional. Overview adds a three-step learning path; metric names
+  open explanations and labeled examples on desktop and mobile. Rates such as
+  win rate are unsigned rather than colored as positive returns.
+- Integrity: Failed breadth, negative 2022, losing stocks and missing prospective
+  evidence stay visible. Source statistics, protocols and V1 are unchanged.
+- References: NN/g's progressive disclosure, Our World in Data's explanatory
+  charts and Portfolio Visualizer's comparisons informed the presentation.
+  Source links and design choices are in `docs/DASHBOARD.md`.
+- Scope: Added `docs/RESEARCH_FOCUS.md`, a proposal for an independently defined
+  tech/AI group with other sectors as controls. It is not a pre-registration or
+  a new backtest; consumed historical data would remain exploratory evidence.
+- Validation: Ten frontend tests and three real-data browser scenarios pass;
+  TypeScript and production builds pass. Desktop/mobile briefs were inspected.
+  No Python research calculation or generated market data was changed.

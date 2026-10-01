@@ -332,3 +332,19 @@ archive is verified and displayed, never collected or scored. Browser exports,
 raw data, screenshots and build output remain ignored. Hashes provide consistency
 checks, not independent authenticity. No frozen strategy, protocol, exclusion,
 historical metric or cache is changed. Public deployment is separate work.
+
+## ADR-020 - Brief answers first, evidence available on request
+
+Date: 2026-10-01. Status: Accepted for frontend usability.
+
+Decision: Show each experiment as question, test, result and limitation. Keep the
+original record and exact tables behind optional controls. Explain metrics on tap
+with short, explicitly hypothetical examples. Use plain language across views.
+
+Reason: The frontend must help its owner learn, not require reading an entire
+research report before understanding a result. Negative findings and uncertainty
+must stay visible in the short version.
+
+Consequence: Editorial summaries are presentation metadata, never alternate
+statistics. Frozen source data and experiment records are unchanged. A separate
+tech/AI research proposal is documented without running a subgroup evaluation.

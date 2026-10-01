@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { DataTable, Empty, Metric, Note, PageTitle, Section } from './components'
+import { DataTable, Disclosure, Empty, Metric, Note, PageTitle, Section } from './components'
 import { docURL, format, type ArchiveRecord, type Dashboard, type Row } from './data'
 import { Document, Missing } from './Research'
 
@@ -26,8 +26,8 @@ export function PaperArchive({ data }: { data: Dashboard }) {
   return (
     <>
       <PageTitle eyebrow="EXP-003 · Collection only" title="Paper-signal archive">
-        Preserved decisions and input vintages. No scheduler, trading connection or prospective
-        outcome scoring.
+        A record of what the system knew at the time. Collection is manual; future returns are not
+        scored.
       </PageTitle>
       <div className="scope-line">
         <strong>Manual archive · {a.status.replaceAll('_', ' ')}</strong>
@@ -171,7 +171,7 @@ export function PaperArchive({ data }: { data: Dashboard }) {
           </div>
         )}
       </Section>
-      <Section title="Run completion and provenance">
+      <Disclosure title="Collection history and data sources">
         <DataTable
           rows={a.runs}
           columns={[
@@ -189,7 +189,7 @@ export function PaperArchive({ data }: { data: Dashboard }) {
           <summary>Frozen requested universe ({a.config.universe.length})</summary>
           <p className="ticker-list">{a.config.universe.join(' · ')}</p>
         </details>
-      </Section>
+      </Disclosure>
       <Section
         title="Coverage and missing runs"
         note="A missing collection is not a run with no signals."
@@ -207,9 +207,8 @@ export function PaperArchive({ data }: { data: Dashboard }) {
           <p>No eligible session deadline is due at this export's coverage cutoff.</p>
         )}
         <p className="small">
-          Coverage is a snapshot, not a live connection. Rebuild the export after collection. Review
-          dates: {a.config.review_dates.join(' / ')}; the protocol's minimum session and
-          completeness requirements still apply.
+          Exported snapshot, not live coverage. Review dates: {a.config.review_dates.join(' / ')};
+          enough complete sessions are also required.
         </p>
       </Section>
       <details>
@@ -228,8 +227,8 @@ export function DataQuality({ data }: { data: Dashboard }) {
         eyebrow="EXP-003 · Historical diagnostic audit"
         title="Small discrepancies. Real research consequences."
       >
-        Audit evidence is separate from the frozen experiment sample. No data repair or historical
-        strategy re-evaluation was performed.
+        Tiny price inconsistencies can exclude an entire stock. This audit checks the data, not
+        trading performance.
       </PageTitle>
       {a.status !== 'available' ? (
         <Missing reason={a.reason} />
@@ -256,8 +255,8 @@ export function DataQuality({ data }: { data: Dashboard }) {
             />
           </div>
           <Note warning>
-            Original rejected raw responses were not preserved. These are newly retrieved diagnostic
-            vintages; they cannot prove exactly what EXP-002 received.
+            The original rejected downloads were not saved. These new copies cannot prove exactly
+            what the experiment received.
           </Note>
           <Section
             title="Every excluded ticker"
@@ -287,10 +286,8 @@ export function DataQuality({ data }: { data: Dashboard }) {
               pageSize={25}
             />
           </Section>
-          <Section
-            title="Exact violations"
-            note="Values are displayed at round-trip precision; scientific notation preserves tiny discrepancies."
-          >
+          <Disclosure title="Inspect exact prices and validation errors">
+            <p className="small">Full precision is kept so tiny differences remain visible.</p>
             <DataTable
               rows={a.violations || []}
               columns={[
@@ -307,25 +304,21 @@ export function DataQuality({ data }: { data: Dashboard }) {
               ]}
               caption="Offending OHLC values"
             />
-          </Section>
+          </Disclosure>
         </>
       )}
       <Section title="Why this matters">
         <p>
-          A close can fall just outside a transformed high or low by one representable
-          floating-point step. Strict ingestion then rejects the entire history, changing sample
-          composition. Small numerical discrepancies can therefore have a large effect on which
-          stocks enter a study.
+          Some newly downloaded closing prices differed from their high/low boundary by one tiny
+          computer-number step. Strict checks reject a stock history for that mismatch.
         </p>
         <p>
-          The new vintage shows one-ULP boundary discrepancies consistent with floating-point
-          adjustment arithmetic. That is an explanation supported by the numerical pattern, not
-          proof of the provider's internal cause or of the original rejected response.
+          Rounding during price adjustment is a plausible explanation. The provider's exact cause is
+          not established.
         </p>
         <Note>
-          Remediation status: recommendation only. Original validation and frozen inputs are
-          unchanged. A separately reviewed, bounded numerical policy would require deterministic
-          tests and independent data-quality criteria before adoption.
+          No repair was applied. Any tolerance change needs a separate data-quality review and
+          tests.
         </Note>
       </Section>
       <Section
@@ -333,9 +326,8 @@ export function DataQuality({ data }: { data: Dashboard }) {
         note="Current constituents are not historical membership."
       >
         <p>
-          The OEF-derived static list was sourced on 2026-09-29. EXP-001 issuers, including GOOG
-          alongside GOOGL, were excluded from the primary cross-sectional holdout. SPY is a
-          benchmark. Interval support does not make an unverified membership file point-in-time.
+          The list came from OEF holdings on 2026-09-29. Earlier-tested companies were excluded; SPY
+          was the comparison. This list does not tell us which companies belonged historically.
         </p>
         {data.exp002.status === 'available' && (
           <p>

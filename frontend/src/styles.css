@@ -21,6 +21,17 @@
   margin: 12px 0;
   border-bottom: 1px solid var(--line);
 }
+.research-proposal {
+  border-left: 2px solid #b6c0ab;
+  background: #edf0e6;
+  padding: 18px 20px;
+  margin-bottom: 28px;
+  font-size: 12px;
+  max-width: 850px;
+}
+.research-proposal h2 {
+  margin-bottom: 10px;
+}
 .learning-path ol {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -715,9 +726,16 @@ table th:first-child {
   background: var(--paper);
   padding: 10px;
   z-index: 20;
+  clip-path: inset(50%);
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
 .skip-link:focus {
   top: 10px;
+  clip-path: none;
+  width: auto;
+  height: auto;
 }
 .distribution-grid {
   display: grid;

@@ -1,5 +1,28 @@
 # Quantitative research terminal
 
+## Reading the site
+
+Start with **Overview → Signal Explorer → Experiments → Robustness**.
+Experiments now shows a short **Question / Test / Result / Limitation** brief.
+Exact tables and the original record open on request. Metric names are clickable
+on desktop and mobile; numerical examples are labeled as examples, not results.
+
+Editorial briefs live in `frontend/src/content/experiments.json`. Their displayed
+statistics still come from the Python export. Full protocols remain unchanged.
+
+Design references:
+- [NN/g: progressive disclosure](https://www.nngroup.com/articles/progressive-disclosure/):
+  show the essentials first, reveal detail when requested.
+- [Our World in Data](https://ourworldindata.org/about): explain what a chart shows
+  and why it matters; keep the evidence and sources accessible.
+- [Portfolio Visualizer](https://www.portfoliovisualizer.com/backtest-portfolio):
+  make comparisons explicit. This project still reports event/trade outcomes,
+  not an allocated portfolio.
+
+These inspired the presentation, not strategy rules or performance claims. No
+third-party code, copy or assets were imported. The proposed next research focus
+is [large-cap tech and AI](RESEARCH_FOCUS.md); no new group evaluation has run.
+
 The frontend is a read-only local research interface. It does not collect market
 data, evaluate new strategy specifications, score candidates, place orders or
 inspect prospective returns. DipSignal V1 and all three experiments remain frozen.

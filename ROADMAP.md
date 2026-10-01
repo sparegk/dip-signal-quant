@@ -14,6 +14,7 @@
 - [ ] Dynamic exit/risk research
 - [x] Frozen V1 historical walk-forward infrastructure and static-universe EXP-002
 - [ ] Genuine point-in-time universe/data validation
+- [ ] Pre-registered large-cap technology / AI comparison (proposal only)
 - [x] OHLC exclusion and universe-provenance audit (EXP-003; no data repair)
 - [x] Pre-registered manual paper-signal archive foundation (EXP-003; collection only)
 - [ ] Prospective outcome evaluation at a predeclared review

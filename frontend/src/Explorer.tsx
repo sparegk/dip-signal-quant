@@ -12,7 +12,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { DataTable, Empty, Note, PageTitle, Section } from './components'
+import { DataTable, Disclosure, Empty, Note, PageTitle, Section } from './components'
 import {
   filterObservations,
   format,
@@ -52,20 +52,23 @@ export function Anatomy({ row }: { row: Row }) {
       <details>
         <summary>Why does a signal fire?</summary>
         <ol className="anatomy">
-          <li>Drawdown from the trailing 60-bar closing high is unusually deep.</li>
-          <li>The 20-bar price z-score is unusually depressed.</li>
-          <li>Price lies unusually close to its trailing 20-bar closing low.</li>
-          <li>Ten-bar performance versus SPY is unusually weak.</li>
+          <li>Price has fallen far from its recent high.</li>
+          <li>Price is unusually low compared with its recent range of values.</li>
+          <li>Price is close to its recent low.</li>
+          <li>The stock has been weak compared with SPY.</li>
         </ol>
         <p>
-          Each feature must be at or below its own prior 20th-percentile threshold: 252 previous
-          observations, at least 126 valid. All four components must be ready; at least three active
-          creates a condition. An event is the transition into that condition, not each consecutive
-          condition day.
+          All four measurements need enough history. At least three must fall in their own lowest
+          20% of past values. A new signal marks the start of this condition.
+        </p>
+        <p className="small">
+          Exact settings: prior 252 observations, at least 126 valid; drawdown 60 bars, price
+          z-score and low distance 20 bars, relative return 10 bars. Today's value is excluded from
+          its threshold.
         </p>
         <Note>
-          The components are correlated and are not independent probabilities. A component count is
-          not a confidence score.
+          These measurements overlap. Three active components do not mean three independent reasons
+          to expect a win.
         </Note>
       </details>
     </>
@@ -454,10 +457,7 @@ export default function Explorer({
               dashed threshold uses prior observations only.
             </p>
           </Section>
-          <Section
-            title="Feature catalog"
-            note="Select any of the definitions above; all calculations remain in Python."
-          >
+          <Disclosure title="Browse all feature definitions">
             <DataTable
               rows={data.feature_catalog.map((f) => ({
                 feature: f.key,
@@ -475,7 +475,7 @@ export default function Explorer({
               onSelect={(r) => setFeatureKey(String(r.feature))}
               pageSize={30}
             />
-          </Section>
+          </Disclosure>
         </>
       ) : (
         <>
