@@ -226,3 +226,11 @@ __marimo__/
 
 # Reproducible EXP-002 machine-readable research artifacts (regenerate via runner).
 /results/exp_002*/
+
+# Local research dashboard exports and build/test tooling.
+/frontend/node_modules/
+/frontend/dist/
+/frontend/public/data/
+/frontend/test-results/
+/frontend/playwright-report/
+*.tsbuildinfo
