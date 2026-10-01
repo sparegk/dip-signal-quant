@@ -7,6 +7,7 @@ describe('Research presentation contract', () => {
     expect(format(-0.00246)).toBe('-0.246%')
     expect(format(0.00244, 'pp')).toBe('+0.244 pp')
     expect(format(0)).toBe('0.000%')
+    expect(format(0.6, 'rate')).toBe('60.000%')
     expect(format(null)).toBe('—')
     expect(format(Infinity)).toBe('—')
   })

@@ -17,15 +17,15 @@ import { format, tone, type Row } from './data'
 
 export const glossary: Record<string, string> = {
   'Mean return':
-    'Arithmetic average of the observed return fractions. Large observations can influence it.',
+    'Add the returns and divide by the number of observations. A few large wins can lift the average.',
   'Median return': 'Middle observed return; half of returns lie on either side.',
   Expectancy:
-    'Mean net return per completed trade, including zero returns. Not an annualized portfolio return.',
-  'Win rate': 'Fraction of completed observations with return strictly greater than zero.',
+    'Average return per completed trade after costs, including flat trades. It describes this sample.',
+  'Win rate': 'The share of completed trades or observations that made a positive return.',
   'Profit factor':
-    'Sum of positive returns divided by the absolute sum of negative returns. Undefined if there are no losses.',
-  MFE: 'Maximum favorable excursion: highest observed high / entry open − 1 over the measured window.',
-  MAE: 'Maximum adverse excursion: lowest observed low / entry open − 1. Negative values represent adverse moves.',
+    'Total positive returns divided by total losses as a positive number. Above 1 means gains exceeded losses. Undefined with no losses.',
+  MFE: 'The biggest rise above the entry price within the measured window. This is an opportunity seen afterward, not a realized gain.',
+  MAE: 'The deepest fall below the entry price within the measured window. This shows the adverse move along the way.',
   Sharpe:
     'Mean excess periodic capital return / its standard deviation, annualized. Not defined for these pooled event ledgers.',
   Sortino:
@@ -42,12 +42,67 @@ export const glossary: Record<string, string> = {
     'Using information that was unavailable when a historical decision would have been made.',
   'Cross-sectional robustness':
     'Whether behavior extends across stocks rather than being concentrated in a few names.',
+  'Gross / net': 'Gross is before trading costs. Net is after the assumed commission and slippage.',
+  'Historical OOS':
+    'Historical periods evaluated under previously fixed rules. They have now been inspected, so they are not a fresh future test.',
+  Baseline:
+    'A simple comparison, such as ordinary stock days or SPY over the same dates. A positive return alone is not enough.',
+  'Statistical significance':
+    'Whether the observed difference is hard to explain by chance under a stated model. These baseline differences have not passed such a test.',
+  'Basis point': 'One basis point (bp) is 0.01 percentage point. Ten basis points is 0.10%.',
+  'Trading bar':
+    'One observed market session in this project. Ten bars means ten observed trading sessions, not ten calendar days.',
 }
 export function Help({ name, children }: { name: string; children?: ReactNode }) {
+  const [open, setOpen] = useState(false)
+  if (!glossary[name]) return <span>{children || name}</span>
   return (
-    <abbr tabIndex={0} title={glossary[name] || name}>
-      {children || name}
-    </abbr>
+    <span className="metric-help">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-label={`Explain ${name}`}
+        onClick={() => setOpen(!open)}
+      >
+        {children || name} <span aria-hidden="true">?</span>
+      </button>
+      {open && (
+        <span className="help-explanation" role="note">
+          {glossary[name]}
+          {examples[name] && <span className="help-example">Example only: {examples[name]}</span>}
+        </span>
+      )}
+    </span>
+  )
+}
+export const examples: Record<string, string> = {
+  'Mean return': 'Returns of +4%, +1%, −2% average +1%. A few large wins can lift this number.',
+  'Median return': 'For −2%, +1%, +12%, the median is +1%, even though the average is higher.',
+  Expectancy:
+    'If equal-size completed trades average +0.5% after costs, that is the sample expectancy—not a promise for the next trade.',
+  'Win rate':
+    '6 profitable trades out of 10 gives 60%. Large losses can still make the overall result negative.',
+  'Profit factor':
+    'With equal-size trades, gains totaling 12% and losses totaling 10% give 1.2. This is not a 20% portfolio return.',
+  MFE: 'Entry at $100; highest price in the window $106: MFE = +6%. It does not mean you sold there.',
+  MAE: 'Entry at $100; lowest price in the window $93: MAE = −7%. It does not mean you sold there.',
+  'Matched-SPY excess': 'Stock +3%, SPY +2% over the same dates: excess = +1 percentage point.',
+  Drawdown: 'A price falls from a recent $100 high to $90: drawdown = −10%.',
+  'Walk-forward':
+    'Use history through 2021 to evaluate 2022, then history through 2022 to evaluate 2023.',
+  'Survivorship bias': 'Testing only companies that exist today can leave out earlier failures.',
+  'Look-ahead bias':
+    'Using tomorrow’s closing price to choose today’s signal would leak future information.',
+  'Cross-sectional robustness':
+    'Ask whether the result appears across many stocks, not just the best two.',
+}
+export function Disclosure({ title, children }: { title: string; children: ReactNode }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <details className="disclosure" onToggle={(event) => setOpen(event.currentTarget.open)}>
+      <summary>{title}</summary>
+      {open && <div className="disclosure-content">{children}</div>}
+    </details>
   )
 }
 export function PageTitle({
@@ -369,6 +424,6 @@ export const foldColumns: Column[] = [
   { key: 'event_mean', label: '10-bar gross', format: 'percent' },
   { key: 'net_mean', label: 'Trade net', format: 'percent' },
   { key: 'spy_excess', label: 'Paired Δ SPY', format: 'pp' },
-  { key: 'win_rate', label: 'Win rate', format: 'percent' },
+  { key: 'win_rate', label: 'Win rate', format: 'rate' },
   { key: 'profit_factor', label: 'Profit factor', format: 'number' },
 ]

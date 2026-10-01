@@ -1,5 +1,6 @@
 import type { Dashboard } from './data'
-import { Backtest, Experiments, ResearchLog, Roadmap, Robustness } from './Research'
+import { Backtest, ResearchLog, Roadmap, Robustness } from './Research'
+import Experiments from './ExperimentPage'
 import { DataQuality, PaperArchive } from './Preservation'
 import { Signals } from './Explorer'
 import { Empty } from './components'

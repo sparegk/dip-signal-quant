@@ -55,6 +55,12 @@ empirically tested; arbitrary trading rules are hypotheses, not established edge
 
 ## Documentation and scope
 
+- User-facing explanations should be brief and use plain vocabulary. Show the
+  main result and its limitation first; put full methods and tables behind
+  optional details. Preserve negative evidence when simplifying.
+- Prefer smaller, tested, coherent commits as usable improvements are completed.
+  Commit frequency must reflect real work, never empty contribution farming.
+
 - Document important research decisions in `docs/DECISIONS.md`.
 - Record significant experiments in `docs/EXPERIMENTS.md`, including poor results.
 - Update `ROADMAP.md` when milestones are actually complete and maintain the

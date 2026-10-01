@@ -7,6 +7,8 @@ import {
   foldColumns,
   comparisonColumns,
   Metric,
+  Disclosure,
+  Help,
   Note,
   PageTitle,
   Section,
@@ -16,19 +18,25 @@ export function Evidence({ research }: { research: Exp2 }) {
   return (
     <Section
       title="Does it have an edge?"
-      note="Observed historical separation · gross event returns · pooled historical OOS"
+      note="Average return after each signal, before costs. Compare it with ordinary stock days and SPY."
     >
       <ComparisonChart rows={research.comparison} />
-      <DataTable
-        rows={research.comparison}
-        columns={comparisonColumns}
-        caption="Event and baseline forward-return comparison"
-      />
-      <p className="footnote">
-        Δ denotes percentage-point differences. Stock controls may have different ticker/date
-        composition; SPY differences use paired observations. Event-mean intervals do not establish
-        significance of baseline differences.
+      <p className="chart-reading">
+        Higher means a larger historical return. The green line is the signal; the other lines are
+        comparisons. A gap alone does not prove an edge.
       </p>
+      <Disclosure title="Exact returns and baseline differences">
+        <DataTable
+          rows={research.comparison}
+          columns={comparisonColumns}
+          caption="Event and baseline forward-return comparison"
+        />
+        <p className="footnote">
+          Δ denotes percentage-point differences. Stock controls may have different ticker/date
+          composition; SPY differences use paired observations. Event-mean intervals do not
+          establish significance of baseline differences.
+        </p>
+      </Disclosure>
     </Section>
   )
 }
@@ -50,8 +58,7 @@ export default function Overview({ data }: { data: Dashboard }) {
   return (
     <>
       <PageTitle eyebrow="Research overview / EXP-002" title="DipSignal V1">
-        Quantitative equity dip / mean-reversion research. A fixed hypothesis, evaluated against
-        simple baselines.
+        Can unusually weak stocks bounce? Here is what the research shows so far.
       </PageTitle>
       <div className="status-line">
         <span className="tag">V1 frozen</span>
@@ -65,10 +72,29 @@ export default function Overview({ data }: { data: Dashboard }) {
         <strong>
           Registered breadth criterion: {research.criteria.breadth_passed ? 'passed' : 'failed'}.
         </strong>{' '}
-        {research.criteria.positive_excess_tickers}/{research.criteria.defined_tickers} tickers have
-        positive ten-bar matched-SPY excess. Positive pooled results do not establish broad
-        incremental value.
+        Only {research.criteria.positive_excess_tickers}/{research.criteria.defined_tickers} stocks
+        beat SPY on average over the matched ten-bar windows. A majority was required.
       </Note>
+      <div className="learning-path" aria-label="Start learning">
+        <span className="eyebrow">New here? Start with three questions</span>
+        <ol>
+          <li>
+            <a href="#signal-explorer">
+              <span>01</span>Why did a signal fire?
+            </a>
+          </li>
+          <li>
+            <a href="#experiments">
+              <span>02</span>Did it beat a simple comparison?
+            </a>
+          </li>
+          <li>
+            <a href="#robustness">
+              <span>03</span>Did it repeat across stocks and years?
+            </a>
+          </li>
+        </ol>
+      </div>
       <div className="scope-line">
         <strong>
           Historical OOS · {research.folds[0]?.test_start as string} →{' '}
@@ -92,38 +118,53 @@ export default function Overview({ data }: { data: Dashboard }) {
           value={trade.average_return}
           note="Non-overlapping trade · net · historical OOS"
         />
-        <Metric
-          label="Win rate"
-          value={trade.win_rate}
-          note="Completed non-overlapping trades · net"
-        />
-        <Metric
-          label="Profit factor"
-          value={trade.profit_factor}
-          kind="number"
-          note="Equal-notional trades · not portfolio P&L"
-        />
-        <Metric
-          label="Median return"
-          value={trade.median_return}
-          note="Non-overlapping trade · net · historical OOS"
-        />
       </div>
-      <div className="secondary-metrics">
-        <span>
-          Event MFE <strong>{format(ten.average_mfe)}</strong>
-        </span>
-        <span>
-          Event MAE <strong className="negative">{format(ten.average_mae)}</strong>
-        </span>
-        <span>
-          Events <strong>{format(research.frequency.events, 'integer')}</strong>
-        </span>
-        <span>
-          Per 252 ready bars{' '}
-          <strong>{format(research.frequency.events_per_252_ready, 'number')}</strong>
-        </span>
-      </div>
+      <p className="reading-boundary">
+        Gross = before costs. Net = after costs. An event is one signal; a trade adds entry and exit
+        rules. Click a metric name for an example.
+      </p>
+      <Disclosure title="More metrics and what they mean">
+        <div className="metric-grid brief-metrics">
+          <Metric
+            label="Win rate"
+            value={trade.win_rate}
+            kind="rate"
+            note="Completed non-overlapping trades · net"
+          />
+          <Metric
+            label="Profit factor"
+            value={trade.profit_factor}
+            kind="number"
+            note="Equal-notional trades · not portfolio P&L"
+          />
+          <Metric
+            label="Median return"
+            value={trade.median_return}
+            note="Non-overlapping trade · net · historical OOS"
+          />
+        </div>
+        <div className="secondary-metrics">
+          <span>
+            Event MFE <strong>{format(ten.average_mfe)}</strong>
+          </span>
+          <span>
+            Event MAE <strong className="negative">{format(ten.average_mae)}</strong>
+          </span>
+          <span>
+            Events <strong>{format(research.frequency.events, 'integer')}</strong>
+          </span>
+          <span>
+            Per 252 ready bars{' '}
+            <strong>{format(research.frequency.events_per_252_ready, 'number')}</strong>
+          </span>
+        </div>
+        <div className="terms-row">
+          <Help name="MFE" />
+          <Help name="MAE" />
+          <Help name="Historical OOS" />
+          <Help name="Trading bar" />
+        </div>
+      </Disclosure>
       <Evidence research={research} />
       <Section
         title="Across time, the result is uneven"
@@ -133,23 +174,22 @@ export default function Overview({ data }: { data: Dashboard }) {
         <div className="two-column">
           <Bars rows={research.folds} x="fold" y="net_mean" label="Mean net trade return" />
           <div className="reading-note">
-            <span className="eyebrow">Keep the negative evidence</span>
-            <h3>One average is not the whole result.</h3>
-            <p>
-              The losing fold stays in the analysis. Shorter horizons, individual stocks and market
-              contexts can behave differently.
-            </p>
+            <span className="eyebrow">What to notice</span>
+            <h3>2022 lost money.</h3>
+            <p>The overall average hides differences between years and stocks.</p>
             <p>
               2026 is a partial historical fold through {String(research.folds.at(-1)?.test_end)},
               not a live YTD result.
             </p>
           </div>
         </div>
-        <DataTable
-          rows={research.folds}
-          columns={foldColumns}
-          caption="Annual walk-forward evidence"
-        />
+        <Disclosure title="Year-by-year results">
+          <DataTable
+            rows={research.folds}
+            columns={foldColumns}
+            caption="Annual walk-forward evidence"
+          />
+        </Disclosure>
       </Section>
       <Section
         title="Prospective evidence"
@@ -161,16 +201,14 @@ export default function Overview({ data }: { data: Dashboard }) {
             : `${data.archive.prospective_count} genuinely prospective records preserved.`}
         </p>
         <p className="footnote">
-          Collection is manually invoked, not continuously active. No prospective outcome evaluation
-          is implemented. First review is no earlier than {data.archive.config.review_dates[0]},
-          subject to the registered coverage gate and separate authorization.
+          Manual collection only. No future results have been scored. First review: no earlier than{' '}
+          {data.archive.config.review_dates[0]}, once the protocol's data requirements are met.
         </p>
         <a href="#paper-archive">Inspect the paper archive →</a>
       </Section>
       <Note>
-        Descriptive historical evidence; statistical significance and future profitability are not
-        established. Current constituents retain survivorship bias. Both historical experiment
-        samples have been consumed.
+        Historical evidence only. Statistical significance and future profits are unproven. Today's
+        surviving stocks may give a biased picture.
       </Note>
     </>
   )

@@ -1,10 +1,10 @@
-import { useState } from 'react'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import {
   Bars,
   comparisonColumns,
   DataTable,
+  Disclosure,
   Empty,
   foldColumns,
   glossary,
@@ -15,14 +15,13 @@ import {
   type Column,
 } from './components'
 import { docURL, format, type Dashboard, type Exp2, type Row } from './data'
-import { Evidence } from './Overview'
 
 export const tradeColumns: Column[] = [
   { key: 'mode', label: 'Analysis mode' },
   { key: 'trade_count', label: 'Completed', format: 'integer' },
   { key: 'average_return', label: 'Mean net', format: 'percent' },
   { key: 'median_return', label: 'Median net', format: 'percent' },
-  { key: 'win_rate', label: 'Win rate', format: 'percent' },
+  { key: 'win_rate', label: 'Win rate', format: 'rate' },
   { key: 'profit_factor', label: 'Profit factor', format: 'number' },
   { key: 'average_mfe', label: 'MFE', format: 'percent' },
   { key: 'average_mae', label: 'MAE', format: 'percent' },
@@ -68,21 +67,22 @@ export function Robustness({ data }: { data: Dashboard }) {
   return (
     <>
       <PageTitle eyebrow="EXP-002 · Historical OOS" title="How broadly does the behavior survive?">
-        A static current-constituent universe; historical windows have been inspected and are
-        consumed.
+        Does the result repeat across years, stocks and market conditions?
       </PageTitle>
       <Note warning>
         <strong>Registered breadth criterion failed.</strong> {r.criteria.positive_excess_tickers}/
         {r.criteria.defined_tickers} ticker excess means were positive. A strict majority was
-        required. Favorable ten-bar fold comparisons: {r.criteria.favorable_folds}/
+        required. Favorable ten-bar yearly comparisons: {r.criteria.favorable_folds}/
         {r.criteria.fold_count}.
       </Note>
       <Section
-        title="Repeated chronological windows"
-        note="Frozen parameters. History expands from 2016-09-29; complete outcome paths must fit inside each OOS fold."
+        title="Across years"
+        note="Same rules each year. Outcomes must finish inside that year's test window."
       >
         <Bars rows={r.folds} x="fold" y="net_mean" label="Non-overlapping mean net trade return" />
-        <DataTable rows={r.folds} columns={foldColumns} caption="Annual walk-forward results" />
+        <Disclosure title="Annual numbers">
+          <DataTable rows={r.folds} columns={foldColumns} caption="Annual walk-forward results" />
+        </Disclosure>
         <details>
           <summary>Exact fold boundaries</summary>
           <DataTable
@@ -100,7 +100,7 @@ export function Robustness({ data }: { data: Dashboard }) {
         </details>
       </Section>
       <Section
-        title="Cross-sectional distribution"
+        title="Across stocks"
         note={`${r.metadata.usable_count} usable of ${r.metadata.requested_count} requested tickers. Losing names remain in the sample; histories have unequal lengths.`}
       >
         <div className="distribution-grid">
@@ -134,99 +134,109 @@ export function Robustness({ data }: { data: Dashboard }) {
             )
           })}
         </div>
-        <DataTable
-          rows={r.tables.trade_ticker_summary.filter((x) => x.mode === 'non_overlapping')}
-          columns={[{ key: 'ticker', label: 'Ticker' }, ...tradeColumns.slice(1)]}
-          caption="All ticker net expectancies"
-        />
-        <details>
-          <summary>All ticker ten-bar event and excess results</summary>
+        <p className="chart-reading">
+          Each bar counts stocks in a return range. The median is the middle stock; Q1–Q3 covers the
+          middle half.
+        </p>
+        <Disclosure title="Every stock, including the losers">
           <DataTable
-            rows={r.tables.ticker_summary.filter(
-              (row) => row.selection === 'events' && row.horizon === 10,
-            )}
-            columns={[
-              { key: 'ticker', label: 'Ticker' },
-              { key: 'count', label: 'Completed', format: 'integer' },
-              { key: 'mean', label: 'Event gross', format: 'percent' },
-              { key: 'benchmark_mean', label: 'Matched SPY', format: 'percent' },
-              { key: 'mean_excess_return', label: 'Paired excess', format: 'pp' },
-              { key: 'median', label: 'Event median', format: 'percent' },
-            ]}
-            caption="All ticker event and excess means"
+            rows={r.tables.trade_ticker_summary.filter((x) => x.mode === 'non_overlapping')}
+            columns={[{ key: 'ticker', label: 'Ticker' }, ...tradeColumns.slice(1)]}
+            caption="All ticker net expectancies"
           />
-        </details>
-      </Section>
-      <Concentration research={r} />
-      <Section
-        title="Market context, not a fitted classifier"
-        note="SPY close above/below its trailing 200-session average, known after signal-session close. Descriptive subgroup analysis."
-      >
-        <div className="two-column">
-          <div>
-            <h3>Gross ten-bar events</h3>
+          <details>
+            <summary>All ticker ten-bar event and excess results</summary>
             <DataTable
-              rows={r.tables.regime_summary.filter(
-                (x) => x.selection === 'events' && x.horizon === 10,
+              rows={r.tables.ticker_summary.filter(
+                (row) => row.selection === 'events' && row.horizon === 10,
               )}
               columns={[
-                { key: 'regime', label: 'SPY regime' },
-                { key: 'observations', label: 'Events', format: 'integer' },
+                { key: 'ticker', label: 'Ticker' },
                 { key: 'count', label: 'Completed', format: 'integer' },
-                { key: 'mean', label: 'Mean gross', format: 'percent' },
-                { key: 'mean_excess_return', label: 'Paired Δ SPY', format: 'pp' },
+                { key: 'mean', label: 'Event gross', format: 'percent' },
+                { key: 'benchmark_mean', label: 'Matched SPY', format: 'percent' },
+                { key: 'mean_excess_return', label: 'Paired excess', format: 'pp' },
+                { key: 'median', label: 'Event median', format: 'percent' },
               ]}
-              caption="Regime event outcomes"
+              caption="All ticker event and excess means"
             />
-          </div>
-          <div>
-            <h3>Non-overlapping trades</h3>
-            <DataTable
-              rows={r.tables.trade_regime_summary.filter((x) => x.mode === 'non_overlapping')}
-              columns={[{ key: 'regime', label: 'SPY regime' }, ...tradeColumns.slice(1, 5)]}
-              caption="Regime trade outcomes"
-            />
-          </div>
-        </div>
+          </details>
+        </Disclosure>
       </Section>
-      <Section
-        title="Frequency and component count"
-        note="Frequency is normalized per 252 ready observations, not calendar years. Components are correlated."
-      >
-        <Bars
-          rows={r.folds}
-          x="fold"
-          y="frequency"
-          percent={false}
-          label="Events per 252 ready observations"
-        />
-        <DataTable
-          rows={r.tables.frequency_fold}
-          columns={[
-            { key: 'fold', label: 'Fold' },
-            { key: 'ready', label: 'Ready rows', format: 'integer' },
-            { key: 'events', label: 'Events', format: 'integer' },
-            { key: 'condition_fraction_ready', label: 'Condition days', format: 'percent' },
-            { key: 'events_per_252_ready', label: 'Events / 252', format: 'number' },
-          ]}
-          caption="Event frequency by fold"
-        />
-        <DataTable
-          rows={r.tables.component_oos_summary.filter((x) => x.horizon === 10)}
-          columns={[
-            { key: 'dip_component_count', label: 'Components' },
-            { key: 'count', label: 'Completed', format: 'integer' },
-            { key: 'mean', label: '10-bar gross', format: 'percent' },
-            { key: 'mean_excess_return', label: 'Paired Δ SPY', format: 'pp' },
-          ]}
-          caption="Component subgroup outcomes"
-        />
-      </Section>
+      <Disclosure title="Do a few stocks drive the result?">
+        <Concentration research={r} />
+      </Disclosure>
+      <Disclosure title="Does the market backdrop matter?">
+        <Section
+          title="SPY above vs below its 200-day average"
+          note="Only information known at that session's close is used. These are descriptive comparisons."
+        >
+          <div className="two-column">
+            <div>
+              <h3>Gross ten-bar events</h3>
+              <DataTable
+                rows={r.tables.regime_summary.filter(
+                  (x) => x.selection === 'events' && x.horizon === 10,
+                )}
+                columns={[
+                  { key: 'regime', label: 'SPY regime' },
+                  { key: 'observations', label: 'Events', format: 'integer' },
+                  { key: 'count', label: 'Completed', format: 'integer' },
+                  { key: 'mean', label: 'Mean gross', format: 'percent' },
+                  { key: 'mean_excess_return', label: 'Paired Δ SPY', format: 'pp' },
+                ]}
+                caption="Regime event outcomes"
+              />
+            </div>
+            <div>
+              <h3>Non-overlapping trades</h3>
+              <DataTable
+                rows={r.tables.trade_regime_summary.filter((x) => x.mode === 'non_overlapping')}
+                columns={[{ key: 'regime', label: 'SPY regime' }, ...tradeColumns.slice(1, 5)]}
+                caption="Regime trade outcomes"
+              />
+            </div>
+          </div>
+        </Section>
+      </Disclosure>
+      <Disclosure title="How often do signals appear?">
+        <Section
+          title="Frequency and component count"
+          note="Frequency is normalized per 252 ready observations, not calendar years. Components are correlated."
+        >
+          <Bars
+            rows={r.folds}
+            x="fold"
+            y="frequency"
+            percent={false}
+            label="Events per 252 ready observations"
+          />
+          <DataTable
+            rows={r.tables.frequency_fold}
+            columns={[
+              { key: 'fold', label: 'Fold' },
+              { key: 'ready', label: 'Ready rows', format: 'integer' },
+              { key: 'events', label: 'Events', format: 'integer' },
+              { key: 'condition_fraction_ready', label: 'Condition days', format: 'rate' },
+              { key: 'events_per_252_ready', label: 'Events / 252', format: 'number' },
+            ]}
+            caption="Event frequency by fold"
+          />
+          <DataTable
+            rows={r.tables.component_oos_summary.filter((x) => x.horizon === 10)}
+            columns={[
+              { key: 'dip_component_count', label: 'Components' },
+              { key: 'count', label: 'Completed', format: 'integer' },
+              { key: 'mean', label: '10-bar gross', format: 'percent' },
+              { key: 'mean_excess_return', label: 'Paired Δ SPY', format: 'pp' },
+            ]}
+            caption="Component subgroup outcomes"
+          />
+        </Section>
+      </Disclosure>
       <Note>
-        Positive pooled results do not establish broad incremental value. The negative 2022 trade
-        result, failed breadth criterion, overlapping events, survivorship selection, and small
-        subgroups remain material. Event bootstrap intervals do not test the significance of
-        baseline differences.
+        The breadth test failed and 2022 lost money. Signals can cluster together, so they are not
+        independent evidence. Statistical significance of the baseline differences remains untested.
       </Note>
     </>
   )
@@ -269,7 +279,7 @@ function Concentration({ research: r }: { research: Exp2 }) {
                   { key: 'ticker', label: 'Ticker' },
                   { key: 'return_sum', label: 'Return sum', format: 'number' },
                   { key: 'mean', label: 'Mean', format: 'percent' },
-                  { key: 'positive_share', label: 'Positive share', format: 'percent' },
+                  { key: 'positive_share', label: 'Positive share', format: 'rate' },
                 ]}
                 pageSize={5}
                 caption={title}
@@ -390,82 +400,6 @@ export function Backtest({ data }: { data: Dashboard }) {
   )
 }
 
-export function Experiments({ data }: { data: Dashboard }) {
-  const [id, setId] = useState('EXP-002')
-  const [split, setSplit] = useState('test')
-  const selected = data.experiments.find((x) => x.id === id)
-  return (
-    <>
-      <PageTitle eyebrow="Research registry" title="Protocols before conclusions">
-        All three historical investigations are complete. The inspected samples are consumed;
-        prospective outcome evaluation has not begun.
-      </PageTitle>
-      <div className="experiment-tabs" role="tablist" aria-label="Experiment">
-        {data.experiments.map((e) => (
-          <button role="tab" aria-selected={id === e.id} key={e.id} onClick={() => setId(e.id)}>
-            <span>{e.id}</span>
-            <strong>
-              {e.id === 'EXP-001'
-                ? 'Baseline evaluation'
-                : e.id === 'EXP-002'
-                  ? 'Cross-sectional robustness'
-                  : 'Data quality & preservation'}
-            </strong>
-            <small>{e.status} · fixed protocol</small>
-          </button>
-        ))}
-      </div>
-      {id === 'EXP-002' && data.exp002.status === 'available' && (
-        <>
-          <Note warning>
-            Registered cross-sectional breadth failed. Positive pooled returns are not proof of an
-            edge.
-          </Note>
-          <Evidence research={data.exp002} />
-        </>
-      )}
-      {id === 'EXP-001' && data.exp001.status === 'available' && (
-        <Section
-          title="First fixed-specification evaluation"
-          note="AAPL, MSFT, NVDA, AMZN, GOOGL · 2016-09-29–2026-09-28 · SPY benchmark"
-        >
-          <label className="field">
-            Chronological split
-            <select value={split} onChange={(e) => setSplit(e.target.value)}>
-              {['research', 'validation', 'test'].map((s) => (
-                <option key={s}>{s}</option>
-              ))}
-            </select>
-          </label>
-          <DataTable
-            rows={(data.exp001.comparison || []).filter((x) => x.group === split)}
-            columns={comparisonColumns}
-            caption="EXP-001 fixed-horizon comparisons"
-          />
-          <DataTable
-            rows={(data.exp001.report?.trade_summaries || []).filter((x) => x.split === split)}
-            columns={tradeColumns}
-            caption="EXP-001 barrier results"
-          />
-          <Note>
-            The test sample was inspected and is consumed. Its near-zero net expectancy and losing
-            stocks remain part of the research record.
-          </Note>
-        </Section>
-      )}
-      {selected && (
-        <Section
-          title={selected.title}
-          note="Canonical protocol, hypothesis, universe, results, limitations and interpretation"
-          action={<a href={docURL(selected.doc)}>Source documentation ↗</a>}
-        >
-          <Document body={selected.body} />
-        </Section>
-      )}
-    </>
-  )
-}
-
 export function ResearchLog({ data }: { data: Dashboard }) {
   return (
     <>
@@ -476,7 +410,7 @@ export function ResearchLog({ data }: { data: Dashboard }) {
         {data.research_log.map((entry, i) => (
           <article key={i}>
             <time>{entry.date}</time>
-            <details open={i === 0}>
+            <details>
               <summary>{entry.title.replace(/^\d{4}-\d{2}-\d{2}\s*[—–-]?\s*/, '')}</summary>
               <Document body={entry.body} source="RESEARCH_LOG" />
             </details>

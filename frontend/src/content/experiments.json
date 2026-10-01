@@ -1,0 +1,29 @@
+{
+  "EXP-001": {
+    "title": "Does buying a dip help?",
+    "question": "Do unusually weak stocks tend to bounce?",
+    "test": "Apply the fixed signal and trading rules to the original five large stocks.",
+    "result": "Test-period trades roughly broke even after costs. Some stocks lost money.",
+    "limitation": "A small, selected sample. These historical results have already been examined.",
+    "link": "backtest",
+    "next": "See the trade rules"
+  },
+  "EXP-002": {
+    "title": "Does it work across more stocks?",
+    "question": "Does the same signal hold up across more stocks and years?",
+    "test": "Keep V1 unchanged and compare annual test periods with stocks and SPY.",
+    "result": "The overall average was positive, but the required stock-breadth test failed. The 2022 trade result was negative.",
+    "limitation": "Today's surviving stocks were used. Broad value beyond the benchmark is still unproven.",
+    "link": "robustness",
+    "next": "See differences across stocks and years"
+  },
+  "EXP-003": {
+    "title": "Can we trust and preserve the data?",
+    "question": "Why were stocks excluded, and how can future signals be recorded fairly?",
+    "test": "Inspect fresh copies of rejected price histories and build a manual signal archive.",
+    "result": "Tiny price inconsistencies were found. Data was not repaired; future performance was not tested.",
+    "limitation": "Original rejected downloads were not saved. New copies cannot prove their exact contents.",
+    "link": "data-quality",
+    "next": "See the data audit"
+  }
+}

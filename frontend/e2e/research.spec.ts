@@ -12,6 +12,7 @@ test('real artifacts render every view without browser errors', async ({ page })
   await expect(
     page.getByText('Registered breadth criterion: failed.', { exact: true }),
   ).toBeVisible()
+  await page.getByText('Year-by-year results', { exact: true }).click()
   await expect(page.getByRole('table', { name: 'Annual walk-forward evidence' })).toContainText(
     '−0.246%'.replace('−', '-'),
   )
@@ -19,7 +20,7 @@ test('real artifacts render every view without browser errors', async ({ page })
   for (const [route, heading] of [
     ['robustness', 'How broadly does the behavior survive?'],
     ['backtest', 'Outcomes, with execution assumptions'],
-    ['experiments', 'Protocols before conclusions'],
+    ['experiments', 'What did we learn?'],
     ['paper-archive', 'Paper-signal archive'],
     ['data-quality', 'Small discrepancies. Real research consequences.'],
     ['research-log', 'Research log'],
@@ -75,4 +76,39 @@ test('signal detail, feature filtering and mobile navigation', async ({ page }) 
   )
   await page.screenshot({ path: 'test-results/archive-mobile.png', fullPage: true })
   expect(errors).toEqual([])
+})
+
+test('brief experiments keep negative evidence and offer optional learning on desktop and mobile', async ({
+  page,
+}) => {
+  await page.goto('/#experiments')
+  const brief = page.getByRole('region', { name: 'EXP-002 short summary' })
+  await expect(brief).toContainText('stock-breadth test failed')
+  await expect(brief).toContainText('2022 trade result was negative')
+  await expect(page.locator('.document')).toHaveCount(0)
+  await expect(
+    page.getByRole('table', { name: 'Event and baseline forward-return comparison' }),
+  ).toHaveCount(0)
+  await page.getByRole('button', { name: 'Explain Expectancy', exact: true }).click()
+  await expect(page.getByRole('note')).toContainText('Example only')
+  await page.getByRole('button', { name: 'Explain Expectancy', exact: true }).click()
+  await page.screenshot({ path: 'test-results/experiments-brief-desktop.png', fullPage: true })
+  await page.getByText('Explore the numbers', { exact: true }).click()
+  await page.getByText('Exact returns and baseline differences', { exact: true }).click()
+  await expect(
+    page.getByRole('table', { name: 'Event and baseline forward-return comparison' }),
+  ).toContainText('+1.066%')
+  await page.getByText('Full research record', { exact: true }).click()
+  await expect(page.locator('.document')).toBeVisible()
+  await page.getByRole('tab', { name: /EXP-001/ }).click()
+  await expect(page.locator('.document')).toHaveCount(0)
+  await expect(page.getByRole('region', { name: 'EXP-001 short summary' })).toContainText(
+    'Some stocks lost money',
+  )
+  await page.getByRole('tab', { name: /EXP-002/ }).click()
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.getByRole('button', { name: 'Explain Expectancy', exact: true }).click()
+  await expect(page.getByRole('note')).toBeVisible()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  await page.screenshot({ path: 'test-results/experiments-brief-mobile.png', fullPage: true })
 })

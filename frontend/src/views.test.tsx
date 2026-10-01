@@ -1,8 +1,8 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within, waitFor } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import { PaperArchive } from './Preservation'
-import { Experiments } from './Research'
-import { DataTable } from './components'
+import Experiments from './ExperimentPage'
+import { DataTable, Help } from './components'
 import type { Dashboard } from './data'
 
 const fixture = {
@@ -80,12 +80,37 @@ it('does not mix replay with empty genuine prospective records', () => {
   fireEvent.click(screen.getByRole('tab', { name: 'Prospective' }))
   expect(screen.queryByText('config', { exact: true })).not.toBeInTheDocument()
 })
-it('renders experiment metadata and canonical unfavorable findings even without local results', () => {
+it('shows a short honest brief and reveals the unchanged full record only on request', async () => {
   render(<Experiments data={fixture} />)
-  expect(screen.getByText('Registered breadth criterion failed.')).toBeInTheDocument()
+  const brief = screen.getByRole('region', { name: 'EXP-002 short summary' })
+  expect(brief).toHaveTextContent('required stock-breadth test failed')
+  expect(brief.textContent!.split(/\s+/).length).toBeLessThan(110)
+  expect(screen.queryByText('Registered breadth criterion failed.')).not.toBeInTheDocument()
+  fireEvent.click(screen.getByText('Full research record'))
+  await waitFor(() =>
+    expect(screen.getByText('Registered breadth criterion failed.')).toBeVisible(),
+  )
   fireEvent.click(screen.getByRole('tab', { name: /EXP-001/ }))
-  expect(screen.getByRole('heading', { name: 'EXP-001 Fixed baseline' })).toBeInTheDocument()
-  expect(screen.getByText('Mixed results retained.')).toBeInTheDocument()
+  expect(screen.getByRole('region', { name: 'EXP-001 short summary' })).toHaveTextContent(
+    'Some stocks lost money',
+  )
+  expect(screen.queryByText('Mixed results retained.')).not.toBeInTheDocument()
+  fireEvent.click(screen.getByText('Full research record'))
+  await waitFor(() => expect(screen.getByText('Mixed results retained.')).toBeVisible())
+})
+it('explains metrics on tap and labels numerical examples as examples', () => {
+  render(<Help name="Win rate" />)
+  const button = screen.getByRole('button', { name: 'Explain Win rate' })
+  expect(button).toHaveAttribute('aria-expanded', 'false')
+  fireEvent.click(button)
+  expect(screen.getByRole('note')).toHaveTextContent(
+    'Example only: 6 profitable trades out of 10 gives 60%',
+  )
+  expect(screen.getByRole('note')).toHaveTextContent(
+    'Large losses can still make the overall result negative',
+  )
+  fireEvent.click(button)
+  expect(screen.queryByRole('note')).not.toBeInTheDocument()
 })
 it('sorts and paginates a presentation copy without changing source returns', () => {
   const rows = [

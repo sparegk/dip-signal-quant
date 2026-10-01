@@ -201,14 +201,14 @@ export const number = (value: unknown): number | null =>
 export function format(value: unknown, kind = 'percent'): string {
   const n = number(value)
   if (n === null) return '—'
-  const scaled = kind === 'percent' || kind === 'pp' ? n * 100 : n
+  const scaled = kind === 'percent' || kind === 'pp' || kind === 'rate' ? n * 100 : n
   const digits = kind === 'integer' ? 0 : kind === 'price' ? 2 : 3
   return (
     new Intl.NumberFormat('en-US', {
       minimumFractionDigits: digits,
       maximumFractionDigits: digits,
       signDisplay: kind === 'percent' || kind === 'pp' ? 'exceptZero' : 'auto',
-    }).format(scaled) + (kind === 'percent' ? '%' : kind === 'pp' ? ' pp' : '')
+    }).format(scaled) + (kind === 'percent' || kind === 'rate' ? '%' : kind === 'pp' ? ' pp' : '')
   )
 }
 export const tone = (value: unknown) =>

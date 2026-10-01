@@ -13,6 +13,166 @@
   --red: #a2594d;
   --paper: #fdfcf8;
 }
+.experiment-brief dl {
+  margin: 0 0 22px;
+}
+.learning-path {
+  padding: 16px 0;
+  margin: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.learning-path ol {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  padding: 0;
+  list-style: none;
+  margin: 12px 0 0;
+  font-size: 12px;
+}
+.learning-path a {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+.learning-path a span {
+  font:
+    10px Consolas,
+    monospace;
+  color: var(--muted);
+}
+.chart-reading {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #5e6858;
+  max-width: 770px;
+}
+.terms-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 16px 0;
+  font-size: 12px;
+}
+@media (max-width: 700px) {
+  .learning-path ol {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+.experiment-brief dl > div {
+  display: grid;
+  grid-template-columns: 95px minmax(0, 1fr);
+  gap: 22px;
+  padding: 17px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.experiment-brief dt {
+  color: var(--muted);
+  font-size: 12px;
+  padding-top: 2px;
+}
+.experiment-brief dd {
+  margin: 0;
+  max-width: 800px;
+}
+.experiment-brief .brief-result {
+  background: #f4eddc;
+  padding-left: 14px;
+  padding-right: 14px;
+  border-left: 2px solid #c49c53;
+}
+.brief-metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+.reading-boundary {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 18px 0 12px;
+  max-width: 750px;
+}
+.next-link {
+  display: inline-block;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+.disclosure {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 17px 0;
+  margin: 18px 0;
+}
+.disclosure + .disclosure {
+  border-top: 0;
+  margin-top: -18px;
+}
+.disclosure > summary {
+  font-size: 13px;
+}
+.disclosure-content {
+  padding: 6px 0 12px;
+}
+.metric-help {
+  display: block;
+}
+.metric-help > button {
+  border: 0;
+  background: none;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+  font-size: inherit;
+  border-radius: 0;
+  text-decoration: underline dotted #b8bcae;
+  text-underline-offset: 4px;
+}
+.metric-help > button > span {
+  font-size: 9px;
+  border: 1px solid #bac4b2;
+  border-radius: 50%;
+  padding: 0 4px;
+  text-decoration: none;
+  margin-left: 3px;
+}
+.help-explanation {
+  display: block;
+  max-width: 460px;
+  padding: 12px;
+  margin: 10px 0;
+  background: #edf0e6;
+  border-left: 2px solid #b6c0ab;
+  font-size: 12px;
+  line-height: 1.65;
+  color: #404d3c;
+}
+.help-example {
+  display: block;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #d1d8c8;
+}
+@media (max-width: 700px) {
+  .experiment-brief dl > div {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 12px 0;
+  }
+  .experiment-brief .brief-result {
+    padding: 12px;
+  }
+  .brief-metrics {
+    grid-template-columns: 1fr !important;
+  }
+  .brief-metrics .metric {
+    border-right: 0 !important;
+    border-bottom: 1px solid var(--line) !important;
+  }
+  .brief-metrics .metric:last-child {
+    border-bottom: 0 !important;
+  }
+}
 * {
   box-sizing: border-box;
 }

@@ -269,7 +269,7 @@ export function DataQuality({ data }: { data: Dashboard }) {
                 { key: 'ticker', label: 'Ticker' },
                 { key: 'rows', label: 'Rows', format: 'integer' },
                 { key: 'affected_rows', label: 'Affected', format: 'integer' },
-                { key: 'affected_fraction', label: 'Fraction', format: 'percent' },
+                { key: 'affected_fraction', label: 'Fraction', format: 'rate' },
                 {
                   key: 'max_absolute_gap',
                   label: 'Max absolute gap',
