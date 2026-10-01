@@ -239,8 +239,12 @@ def export_archive(root: Path, config: dict, as_of: str) -> dict:
                          # Do not export raw exception strings containing local filesystem paths.
                          "error": "Input unavailable; inspect the local archive for details" if row["error"] else None,
                          "outcome": None})
+    coverage_rows = [{"session": item["session"], "status": item["status"],
+                      "prospective": sum(value == "prospective" for value in item["classifications"].values()),
+                      "expected": len(config["universe"])}
+                     for item in coverage(directory, config, as_of=as_of)]
     return {"status": "initialized" if directory.exists() else "not_collected", "config": config,
-            "runs": runs, "records": rows, "coverage": coverage(directory, config, as_of=as_of),
+            "runs": runs, "records": rows, "coverage": coverage_rows,
             "prospective_count": sum(r["classification"] == "prospective" for r in rows),
             "retrospective_count": sum(r["classification"] == "retrospective" for r in rows),
             "non_event_count": sum(r["values"] is not None and not r["values"]["dip_event_v1"] for r in rows),

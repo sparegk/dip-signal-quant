@@ -15,6 +15,10 @@ npm.cmd run dev
 
 Open the localhost URL printed by Vite. On non-Windows systems use `npm`.
 `npm.cmd test` runs UI tests; `npm.cmd run build` creates a local production build.
+`npm.cmd run test:browser` checks the real exported data in a local browser.
+Windows uses installed Microsoft Edge; other platforms use Playwright Chromium.
+To exercise a completed production build, set `DASHBOARD_PREVIEW=1` before the
+browser command. `npm.cmd run format:check` checks frontend formatting.
 
 The exporter is offline. It reads preserved EXP-001/002 results, their snapshots,
 EXP-003 diagnostics and the paper archive. These inputs and all browser exports

@@ -27,6 +27,14 @@ def test_missing_artifacts_export_honest_empty_states_and_deterministic_generati
     assert dashboard['experiments'][0]['id']=='EXP-001'
     assert dashboard['roadmap'][1]['status']=='not_started'
     assert digest((tmp_path/'one'/manifest['dashboard']).read_bytes())==manifest['sha256']['dashboard.json']
+    original_manifest=(tmp_path/'one/manifest.json').read_bytes()
+    def interrupted_switch(*args):
+        raise OSError('Simulated interrupted manifest publication')
+    monkeypatch.setattr('scripts.build_dashboard_data.os.replace',interrupted_switch)
+    with pytest.raises(OSError,match='interrupted manifest'):
+        build_dashboard(tmp_path,tmp_path/'one',as_of='2026-10-01T01:00:00Z')
+    assert (tmp_path/'one/manifest.json').read_bytes()==original_manifest
+    assert not list((tmp_path/'one').glob('.manifest-*'))
 
 
 def test_corrupt_inputs_fail_closed(tmp_path):
@@ -63,3 +71,28 @@ def test_feature_catalog_matches_frozen_feature_families():
     assert {f['key'] for f in catalog if f['used_in_v1']}=={
         'drawdown_60d','price_zscore_20d','distance_from_low_20d','relative_return_10d'}
     assert all(f['warmup'] and f['availability'] and f['formula'] for f in catalog)
+
+
+def test_archive_adapter_preserves_record_status_classification_and_missing_coverage(tmp_path, monkeypatch):
+    from scripts.build_dashboard_data import export_archive
+    directory=tmp_path/'data/paper_archive/runs/replay'
+    directory.mkdir(parents=True)
+    (directory/'intent.json').touch()
+    intent={'run_id':'replay','session':'2026-09-28','mode':'replay','started_at':'2026-10-01T00:00:00Z',
+            'code':{'revision':'abc','dirty':True},'config_sha256':'config','corrects':None}
+    result={'records':[{'ticker':'AA','status':'available','values':{'dip_event_v1':False},'error':None},
+                       {'ticker':'BB','status':'unavailable','values':None,'error':'private/local/path'}],
+            'inputs':{'AA':{'validated_sha256':'input','provenance':{'retrieved_at':'vintage'}},'BB':{}}}
+    monkeypatch.setattr('scripts.build_dashboard_data.read_record',lambda p:intent if p.name=='intent.json' else result)
+    monkeypatch.setattr('scripts.build_dashboard_data.verify_run',lambda *a:{'status':'partial','published_at':'time',
+                         'classifications':{'AA':'retrospective','BB':'retrospective'}})
+    monkeypatch.setattr('scripts.build_dashboard_data.coverage',lambda *a,**k:[{'session':'2026-10-01','status':'missing_run','classifications':{}}])
+    export=export_archive(tmp_path,{'universe':['AA','BB']},'2026-10-02T20:00:00Z')
+    assert export['records'][0]['status']=='available'
+    assert export['records'][0]['run_status']=='partial'
+    assert export['records'][1]['status']=='unavailable'
+    assert 'private/local/path' not in json.dumps(export)
+    assert export['prospective_count']==0 and export['retrospective_count']==2
+    assert export['failure_count']==1 and export['non_event_count']==1
+    assert export['coverage']==[{'session':'2026-10-01','status':'missing_run','prospective':0,'expected':2}]
+    assert all(row['outcome'] is None for row in export['records'])
