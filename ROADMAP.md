@@ -11,7 +11,7 @@
 - [x] Initial outcome evaluation / research backtest foundation (EXP-001)
 - [x] Initial unconditional-stock and matched-SPY baseline comparisons (EXP-001)
 - [ ] Support-memory model
-- [ ] Dynamic exit/risk research
+- [ ] Dynamic exit/risk research (EXP-004 preregistered; not evaluated)
 - [x] Frozen V1 historical walk-forward infrastructure and static-universe EXP-002
 - [ ] Genuine point-in-time universe/data validation
 - [ ] Pre-registered large-cap technology / AI comparison (proposal only)

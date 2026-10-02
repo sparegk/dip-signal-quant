@@ -481,3 +481,14 @@ prospective observations can yet be collected.
 - Validation: Ten frontend tests and three real-data browser scenarios pass;
   TypeScript and production builds pass. Desktop/mobile briefs were inspected.
   No Python research calculation or generated market data was changed.
+
+## 2026-10-02 - ATR exit and EV research preparation
+
+- Request: Explore stock-aware exits and use expected value clearly.
+- Change: Added an ATR(14)-scaled barrier calculator and made net EV's win/loss
+  probabilities, average win/loss and break-even win rate explicit.
+- Integrity: Registered a fixed candidate grid in EXP-004. No exit candidates
+  were evaluated or selected; consumed validation/test outcomes remain untouched.
+  V1's +10% / -7% / 10-bar configuration is unchanged.
+- Next: Only consider prospective comparison at EXP-003's scheduled review gate,
+  with separate authorization to attach/evaluate outcomes.

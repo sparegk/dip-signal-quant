@@ -348,3 +348,19 @@ must stay visible in the short version.
 Consequence: Editorial summaries are presentation metadata, never alternate
 statistics. Frozen source data and experiment records are unchanged. A separate
 tech/AI research proposal is documented without running a subgroup evaluation.
+
+## ADR-021 - Separate ATR-sized exits from frozen V1
+
+Date: 2026-10-02. Status: Accepted; EXP-004 preregistered, not run.
+
+Decision: Keep V1's fixed barriers unchanged. Prototype ATR(14)-scaled levels
+using only signal-session data, and select candidate multipliers only on the
+research split. Treat net mean return as EV and report its win/loss decomposition.
+Do not use inspected validation/test outcomes to select exits; prospective
+comparison waits for EXP-003's review gate and separate authorization.
+
+Reason: Exit rules may reasonably scale with each stock's recent range, but
+choosing a rule on consumed holdouts would make its apparent evidence optimistic.
+
+Consequence: The calculator and EV diagnostics add no selected exit settings or
+performance claims. V1, EXP-001/002 results and EXP-003 archive remain unchanged.

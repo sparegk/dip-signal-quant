@@ -211,12 +211,26 @@ def trade_metrics(trades: pd.DataFrame, *, sequential: bool = False) -> dict[str
     returns = complete.net_return.to_numpy(dtype=float)
     n = len(returns)
     losses = -returns[returns < 0].sum()
+    wins = returns[returns > 0]
+    losing_returns = returns[returns < 0]
+    win_probability = len(wins) / n if n else np.nan
+    loss_probability = len(losing_returns) / n if n else np.nan
+    average_win = float(wins.mean()) if len(wins) else np.nan
+    average_loss = float(losing_returns.mean()) if len(losing_returns) else np.nan
+    # The arithmetic decomposition is algebraically equal; use the direct sample
+    # mean as canonical EV to avoid a roundoff-only mismatch with expectancy.
+    expected_value = float(returns.mean()) if n else np.nan
+    break_even_win_rate = (abs(average_loss) / (average_win + abs(average_loss))
+                           if len(wins) and len(losing_returns) else np.nan)
     result = {"candidate_count": len(trades), "trade_count": n, "excluded_count": len(trades) - n,
               "win_rate": float((returns > 0).mean()) if n else np.nan,
+              "win_probability": win_probability, "loss_probability": loss_probability,
+              "average_win": average_win, "average_loss": average_loss,
               "average_return": float(returns.mean()) if n else np.nan,
               "median_return": float(np.median(returns)) if n else np.nan,
               "std": float(returns.std(ddof=1)) if n > 1 else np.nan,
-              "expectancy": float(returns.mean()) if n else np.nan,
+              "expectancy": expected_value, "expected_value": expected_value,
+              "break_even_win_rate": break_even_win_rate,
               "average_gross_return": complete.gross_return.mean(),
               "average_mfe": complete.mfe.mean(), "average_mae": complete.mae.mean(),
               "average_holding_bars": complete.holding_bars.mean(),

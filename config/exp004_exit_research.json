@@ -1,0 +1,41 @@
+{
+  "experiment_id": "EXP-004",
+  "status": "preregistered_not_run",
+  "signal_version": "DipSignal V1 (frozen)",
+  "signal_parameters": {
+    "lookback": 252,
+    "min_history": 126,
+    "quantile": 0.2,
+    "required_components": 3
+  },
+  "execution": {
+    "entry": "next_observed_open",
+    "max_holding_bars": 10,
+    "ambiguity_policy": "conservative",
+    "commission_rate": 0.0001,
+    "slippage_rate": 0.0005
+  },
+  "frozen_comparator": {
+    "take_profit": 0.1,
+    "stop_loss": 0.07
+  },
+  "adaptive_exit_candidate": {
+    "atr_window": 14,
+    "stop_atr_multiples": [1.0, 1.5, 2.0, 2.5],
+    "reward_to_risk_ratios": [1.0, 1.5, 2.0],
+    "target_distance": "stop_distance_times_reward_to_risk"
+  },
+  "selection": {
+    "data_split": "research_only",
+    "scope": "pooled_across_all_data_eligible_registered_universe_names",
+    "objective": "maximum_mean_net_return_per_completed_trade",
+    "tie_break": ["lower_stop_atr_multiple", "lower_reward_to_risk_ratio"],
+    "validation_and_test_splits_used_for_selection": false
+  },
+  "future_evaluation": {
+    "source": "EXP-003 prospective archive only",
+    "review_schedule": "EXP-003 registered dates and coverage gate",
+    "outcome_evaluation_authorized": false,
+    "interim_peeking": false
+  }
+}

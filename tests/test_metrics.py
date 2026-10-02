@@ -153,6 +153,13 @@ def test_trade_summary_rates_and_no_fictitious_portfolio_metrics():
     assert result["excluded_count"] == 0
     assert result["win_rate"] == .5
     assert result["average_return"] == result["expectancy"] == pytest.approx(.0625)
+    assert result["expected_value"] == pytest.approx(
+        result["win_probability"] * result["average_win"]
+        + result["loss_probability"] * result["average_loss"]
+    )
+    assert result["average_win"] == pytest.approx(.15)
+    assert result["average_loss"] == pytest.approx(-.05)
+    assert result["break_even_win_rate"] == pytest.approx(.25)
     assert result["median_return"] == pytest.approx(.05)
     assert result["take_profit_rate"] == .5
     assert result["stop_loss_rate"] == result["time_exit_rate"] == .25
@@ -181,6 +188,7 @@ def test_trade_summary_reports_censored_and_skipped_rows():
     empty = metrics.trade_metrics(data.iloc[:0])
     assert empty["trade_count"] == 0
     assert np.isnan(empty["win_rate"])
+    assert np.isnan(empty["expected_value"])
 
 
 @pytest.mark.parametrize("kind", ["multiple", "overlap", "unsorted", "backwards", "missing_date"])

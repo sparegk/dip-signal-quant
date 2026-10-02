@@ -865,3 +865,13 @@ The audit table regenerates from hash-verified raw snapshots; the EXP-002 tables
 still match their preserved artifacts. All 144 frozen files in the recovery
 inventory are unchanged. Generated diagnostics/archive inputs and records remain
 ignored. Only the audit/manual-archive foundation is marked complete on the roadmap.
+
+## EXP-004 - ATR-scaled exits (registered, not run)
+
+Can stock-specific ATR(14) barrier distances improve net expected value without
+changing frozen V1 signals? The fixed candidate grid, costs, tie rule and review
+gate are in [`config/exp004_exit_research.json`](../config/exp004_exit_research.json)
+and [EXIT_RESEARCH.md](EXIT_RESEARCH.md). Selection is limited to the research
+split; inspected validation/test periods are not used to pick exits. No settings
+have been evaluated or selected. Future prospective outcome evaluation requires
+the EXP-003 review gate and separate authorization.
