@@ -514,3 +514,11 @@ prospective observations can yet be collected.
   deterministic artifact generation. No new exit settings were chosen before
   registration `55a4c5b` was pushed. Main evaluation follows this implementation.
 - Full suite: 582 passed with warnings treated as errors; `pip check` passed.
+
+## 2026-10-02 - EXP-004 preservation and artifact safeguards
+
+- Original EXP-002 tables still match hash-verified artifacts; EXP-001/002/003
+  registry sections are unchanged. All 374 preservation-inventory files match.
+- Extended result-ignore rules to cover EXP-004 and its replay directory; the
+  earlier rule covered EXP-002 only. Added the lower-bound R-target regression.
+  No execution code, candidate settings or selection method changed.

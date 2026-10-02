@@ -80,12 +80,13 @@ def test_candidate_fraction_calculations(name, stop, target):
     np.testing.assert_allclose(fractions.target_fraction, target)
 
 
-@pytest.mark.parametrize("value,stop,target", [(0,.01,.03), (.5,.20,.30)])
-def test_bounds_and_effective_r_after_clipping(value, stop, target):
+@pytest.mark.parametrize("value,stop,target,name", [(0,.01,.03,"r_s4_r3"), (.5,.20,.30,"r_s4_r3"),
+                                                      (0,.01,.01,"r_s0.75_r0.75")])
+def test_bounds_and_effective_r_after_clipping(value, stop, target, name):
     config = configuration()
     data = bars()
     data["atr_pct_14"] = value
-    fractions = exits.candidate_fractions(data, candidate(config,"r_s4_r3"), config)
+    fractions = exits.candidate_fractions(data, candidate(config,name), config)
     assert fractions.stop_fraction.iloc[0] == stop
     assert fractions.target_fraction.iloc[0] == target
 
