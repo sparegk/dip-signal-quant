@@ -492,3 +492,12 @@ prospective observations can yet be collected.
   V1's +10% / -7% / 10-bar configuration is unchanged.
 - Next: Only consider prospective comparison at EXP-003's scheduled review gate,
   with separate authorization to attach/evaluate outcomes.
+
+## 2026-10-02 - EXP-004 exit-policy registration revision 2
+
+- User expanded the unrun ATR-only preparation to same-entry exit-policy research.
+- Registered 20 fixed pairs, 56 ATR pairs, 56 ATR/R pairs and four controls before
+  calculating any candidate results. Selection is training-only net EV; fixed
+  holding period and explicit bounds isolate exit distances.
+- Historical fold OOS reuses consumed dates and is labeled accordingly. Prior
+  experiments/archive remain unchanged. Structure-aware exits are deferred.

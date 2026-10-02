@@ -364,3 +364,20 @@ choosing a rule on consumed holdouts would make its apparent evidence optimistic
 
 Consequence: The calculator and EV diagnostics add no selected exit settings or
 performance claims. V1, EXP-001/002 results and EXP-003 archive remain unchanged.
+
+## ADR-022 - Research full exit policies with same-entry EV selection
+
+Date: 2026-10-02. Status: Accepted under explicitly requested EXP-004 revision 2.
+
+Decision: Supersede the unrun ATR-only scope with a frozen, enumerated fixed/ATR/R
+catalogue and four controls. Use independent events for training EV selection,
+annual expanding history, a minimum count and deterministic ties. Use the same
+execution engine with optional/variable barriers; preserve default V1 outputs.
+
+Reason: Rebound capture depends on targets as well as stops. Training-only
+selection allows a fair fold comparison without optimizing on its OOS outcomes.
+
+Consequences: 132 searchable candidates create multiple-testing risk. Existing
+historical dates remain consumed; fold OOS is not fresh validation. Non-overlap
+drawdown is per ticker, never a fabricated pooled portfolio. Post-exit diagnostics
+are isolated from selection. Prospective outcomes remain pending.

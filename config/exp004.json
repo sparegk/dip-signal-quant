@@ -1,0 +1,1009 @@
+{
+  "experiment": "EXP-004",
+  "title": "Adaptive Exit Policy Research",
+  "protocol_revision": 2,
+  "supersedes": "Unrun ATR-only registration cb4df97; expanded at explicit user request before results",
+  "source_experiment": "EXP-002",
+  "source_config_sha256": "7a7f18b8e0bd2bb22433fbf64a60431c6e70819374d0d0b3a328f444834bd2b2",
+  "source_metadata_sha256": "505aba000f251dea9013c999eb30649755dbf20015abb8c0124beb0f28c654cf",
+  "signal_parameters": {
+    "lookback": 252,
+    "min_history": 126,
+    "quantile": 0.2,
+    "required_components": 3
+  },
+  "frozen_source_sha256": {
+    "src/features.py": "08ab6a827642680e7001c88ec21c8812e69a856adf2d8a764f1e9342a0c4b584",
+    "src/signals.py": "7a2640d1448236863b12619d470ec21a9ebfe5c9e8becff060b5d1b5e4524590"
+  },
+  "universe": "Exact EXP-002 requested list and original usable cached snapshots; no replacement or repair",
+  "primary_mode": "independent",
+  "secondary_mode": "non_overlapping",
+  "max_holding_bars": 10,
+  "commission_rate": 0.0001,
+  "slippage_rate": 0.0005,
+  "ambiguity_policy": "conservative",
+  "atr_feature": "atr_pct_14",
+  "bounds": {
+    "stop_min": 0.01,
+    "stop_max": 0.2,
+    "target_min": 0.01,
+    "target_max": 0.3
+  },
+  "atr_definition": "signal ATR14 / signal close; fraction frozen at t, barriers anchored to t+1 open",
+  "r_definition": "target fraction = clipped stop fraction times R, then clip target bounds",
+  "fixed_pairs_percent": [
+    [
+      2,
+      4
+    ],
+    [
+      3,
+      4
+    ],
+    [
+      3,
+      6
+    ],
+    [
+      4,
+      6
+    ],
+    [
+      4,
+      8
+    ],
+    [
+      5,
+      8
+    ],
+    [
+      5,
+      10
+    ],
+    [
+      6,
+      8
+    ],
+    [
+      6,
+      12
+    ],
+    [
+      7,
+      8
+    ],
+    [
+      7,
+      12
+    ],
+    [
+      8,
+      10
+    ],
+    [
+      8,
+      12
+    ],
+    [
+      8,
+      15
+    ],
+    [
+      10,
+      12
+    ],
+    [
+      10,
+      15
+    ],
+    [
+      10,
+      20
+    ],
+    [
+      12,
+      15
+    ],
+    [
+      12,
+      20
+    ],
+    [
+      15,
+      20
+    ]
+  ],
+  "stop_multipliers": [
+    0.75,
+    1,
+    1.25,
+    1.5,
+    2,
+    2.5,
+    3,
+    4
+  ],
+  "target_multipliers": [
+    1,
+    1.5,
+    2,
+    2.5,
+    3,
+    4,
+    5
+  ],
+  "reward_risk_ratios": [
+    0.75,
+    1,
+    1.25,
+    1.5,
+    2,
+    2.5,
+    3
+  ],
+  "candidates": [
+    {
+      "id": "fixed_s02_t04",
+      "family": "fixed",
+      "stop": 0.02,
+      "target": 0.04
+    },
+    {
+      "id": "fixed_s03_t04",
+      "family": "fixed",
+      "stop": 0.03,
+      "target": 0.04
+    },
+    {
+      "id": "fixed_s03_t06",
+      "family": "fixed",
+      "stop": 0.03,
+      "target": 0.06
+    },
+    {
+      "id": "fixed_s04_t06",
+      "family": "fixed",
+      "stop": 0.04,
+      "target": 0.06
+    },
+    {
+      "id": "fixed_s04_t08",
+      "family": "fixed",
+      "stop": 0.04,
+      "target": 0.08
+    },
+    {
+      "id": "fixed_s05_t08",
+      "family": "fixed",
+      "stop": 0.05,
+      "target": 0.08
+    },
+    {
+      "id": "fixed_s05_t10",
+      "family": "fixed",
+      "stop": 0.05,
+      "target": 0.1
+    },
+    {
+      "id": "fixed_s06_t08",
+      "family": "fixed",
+      "stop": 0.06,
+      "target": 0.08
+    },
+    {
+      "id": "fixed_s06_t12",
+      "family": "fixed",
+      "stop": 0.06,
+      "target": 0.12
+    },
+    {
+      "id": "fixed_s07_t08",
+      "family": "fixed",
+      "stop": 0.07,
+      "target": 0.08
+    },
+    {
+      "id": "fixed_s07_t12",
+      "family": "fixed",
+      "stop": 0.07,
+      "target": 0.12
+    },
+    {
+      "id": "fixed_s08_t10",
+      "family": "fixed",
+      "stop": 0.08,
+      "target": 0.1
+    },
+    {
+      "id": "fixed_s08_t12",
+      "family": "fixed",
+      "stop": 0.08,
+      "target": 0.12
+    },
+    {
+      "id": "fixed_s08_t15",
+      "family": "fixed",
+      "stop": 0.08,
+      "target": 0.15
+    },
+    {
+      "id": "fixed_s10_t12",
+      "family": "fixed",
+      "stop": 0.1,
+      "target": 0.12
+    },
+    {
+      "id": "fixed_s10_t15",
+      "family": "fixed",
+      "stop": 0.1,
+      "target": 0.15
+    },
+    {
+      "id": "fixed_s10_t20",
+      "family": "fixed",
+      "stop": 0.1,
+      "target": 0.2
+    },
+    {
+      "id": "fixed_s12_t15",
+      "family": "fixed",
+      "stop": 0.12,
+      "target": 0.15
+    },
+    {
+      "id": "fixed_s12_t20",
+      "family": "fixed",
+      "stop": 0.12,
+      "target": 0.2
+    },
+    {
+      "id": "fixed_s15_t20",
+      "family": "fixed",
+      "stop": 0.15,
+      "target": 0.2
+    },
+    {
+      "id": "atr_s0.75_t1",
+      "family": "atr",
+      "stop_multiplier": 0.75,
+      "target_multiplier": 1
+    },
+    {
+      "id": "atr_s0.75_t1.5",
+      "family": "atr",
+      "stop_multiplier": 0.75,
+      "target_multiplier": 1.5
+    },
+    {
+      "id": "atr_s0.75_t2",
+      "family": "atr",
+      "stop_multiplier": 0.75,
+      "target_multiplier": 2
+    },
+    {
+      "id": "atr_s0.75_t2.5",
+      "family": "atr",
+      "stop_multiplier": 0.75,
+      "target_multiplier": 2.5
+    },
+    {
+      "id": "atr_s0.75_t3",
+      "family": "atr",
+      "stop_multiplier": 0.75,
+      "target_multiplier": 3
+    },
+    {
+      "id": "atr_s0.75_t4",
+      "family": "atr",
+      "stop_multiplier": 0.75,
+      "target_multiplier": 4
+    },
+    {
+      "id": "atr_s0.75_t5",
+      "family": "atr",
+      "stop_multiplier": 0.75,
+      "target_multiplier": 5
+    },
+    {
+      "id": "atr_s1_t1",
+      "family": "atr",
+      "stop_multiplier": 1,
+      "target_multiplier": 1
+    },
+    {
+      "id": "atr_s1_t1.5",
+      "family": "atr",
+      "stop_multiplier": 1,
+      "target_multiplier": 1.5
+    },
+    {
+      "id": "atr_s1_t2",
+      "family": "atr",
+      "stop_multiplier": 1,
+      "target_multiplier": 2
+    },
+    {
+      "id": "atr_s1_t2.5",
+      "family": "atr",
+      "stop_multiplier": 1,
+      "target_multiplier": 2.5
+    },
+    {
+      "id": "atr_s1_t3",
+      "family": "atr",
+      "stop_multiplier": 1,
+      "target_multiplier": 3
+    },
+    {
+      "id": "atr_s1_t4",
+      "family": "atr",
+      "stop_multiplier": 1,
+      "target_multiplier": 4
+    },
+    {
+      "id": "atr_s1_t5",
+      "family": "atr",
+      "stop_multiplier": 1,
+      "target_multiplier": 5
+    },
+    {
+      "id": "atr_s1.25_t1",
+      "family": "atr",
+      "stop_multiplier": 1.25,
+      "target_multiplier": 1
+    },
+    {
+      "id": "atr_s1.25_t1.5",
+      "family": "atr",
+      "stop_multiplier": 1.25,
+      "target_multiplier": 1.5
+    },
+    {
+      "id": "atr_s1.25_t2",
+      "family": "atr",
+      "stop_multiplier": 1.25,
+      "target_multiplier": 2
+    },
+    {
+      "id": "atr_s1.25_t2.5",
+      "family": "atr",
+      "stop_multiplier": 1.25,
+      "target_multiplier": 2.5
+    },
+    {
+      "id": "atr_s1.25_t3",
+      "family": "atr",
+      "stop_multiplier": 1.25,
+      "target_multiplier": 3
+    },
+    {
+      "id": "atr_s1.25_t4",
+      "family": "atr",
+      "stop_multiplier": 1.25,
+      "target_multiplier": 4
+    },
+    {
+      "id": "atr_s1.25_t5",
+      "family": "atr",
+      "stop_multiplier": 1.25,
+      "target_multiplier": 5
+    },
+    {
+      "id": "atr_s1.5_t1",
+      "family": "atr",
+      "stop_multiplier": 1.5,
+      "target_multiplier": 1
+    },
+    {
+      "id": "atr_s1.5_t1.5",
+      "family": "atr",
+      "stop_multiplier": 1.5,
+      "target_multiplier": 1.5
+    },
+    {
+      "id": "atr_s1.5_t2",
+      "family": "atr",
+      "stop_multiplier": 1.5,
+      "target_multiplier": 2
+    },
+    {
+      "id": "atr_s1.5_t2.5",
+      "family": "atr",
+      "stop_multiplier": 1.5,
+      "target_multiplier": 2.5
+    },
+    {
+      "id": "atr_s1.5_t3",
+      "family": "atr",
+      "stop_multiplier": 1.5,
+      "target_multiplier": 3
+    },
+    {
+      "id": "atr_s1.5_t4",
+      "family": "atr",
+      "stop_multiplier": 1.5,
+      "target_multiplier": 4
+    },
+    {
+      "id": "atr_s1.5_t5",
+      "family": "atr",
+      "stop_multiplier": 1.5,
+      "target_multiplier": 5
+    },
+    {
+      "id": "atr_s2_t1",
+      "family": "atr",
+      "stop_multiplier": 2,
+      "target_multiplier": 1
+    },
+    {
+      "id": "atr_s2_t1.5",
+      "family": "atr",
+      "stop_multiplier": 2,
+      "target_multiplier": 1.5
+    },
+    {
+      "id": "atr_s2_t2",
+      "family": "atr",
+      "stop_multiplier": 2,
+      "target_multiplier": 2
+    },
+    {
+      "id": "atr_s2_t2.5",
+      "family": "atr",
+      "stop_multiplier": 2,
+      "target_multiplier": 2.5
+    },
+    {
+      "id": "atr_s2_t3",
+      "family": "atr",
+      "stop_multiplier": 2,
+      "target_multiplier": 3
+    },
+    {
+      "id": "atr_s2_t4",
+      "family": "atr",
+      "stop_multiplier": 2,
+      "target_multiplier": 4
+    },
+    {
+      "id": "atr_s2_t5",
+      "family": "atr",
+      "stop_multiplier": 2,
+      "target_multiplier": 5
+    },
+    {
+      "id": "atr_s2.5_t1",
+      "family": "atr",
+      "stop_multiplier": 2.5,
+      "target_multiplier": 1
+    },
+    {
+      "id": "atr_s2.5_t1.5",
+      "family": "atr",
+      "stop_multiplier": 2.5,
+      "target_multiplier": 1.5
+    },
+    {
+      "id": "atr_s2.5_t2",
+      "family": "atr",
+      "stop_multiplier": 2.5,
+      "target_multiplier": 2
+    },
+    {
+      "id": "atr_s2.5_t2.5",
+      "family": "atr",
+      "stop_multiplier": 2.5,
+      "target_multiplier": 2.5
+    },
+    {
+      "id": "atr_s2.5_t3",
+      "family": "atr",
+      "stop_multiplier": 2.5,
+      "target_multiplier": 3
+    },
+    {
+      "id": "atr_s2.5_t4",
+      "family": "atr",
+      "stop_multiplier": 2.5,
+      "target_multiplier": 4
+    },
+    {
+      "id": "atr_s2.5_t5",
+      "family": "atr",
+      "stop_multiplier": 2.5,
+      "target_multiplier": 5
+    },
+    {
+      "id": "atr_s3_t1",
+      "family": "atr",
+      "stop_multiplier": 3,
+      "target_multiplier": 1
+    },
+    {
+      "id": "atr_s3_t1.5",
+      "family": "atr",
+      "stop_multiplier": 3,
+      "target_multiplier": 1.5
+    },
+    {
+      "id": "atr_s3_t2",
+      "family": "atr",
+      "stop_multiplier": 3,
+      "target_multiplier": 2
+    },
+    {
+      "id": "atr_s3_t2.5",
+      "family": "atr",
+      "stop_multiplier": 3,
+      "target_multiplier": 2.5
+    },
+    {
+      "id": "atr_s3_t3",
+      "family": "atr",
+      "stop_multiplier": 3,
+      "target_multiplier": 3
+    },
+    {
+      "id": "atr_s3_t4",
+      "family": "atr",
+      "stop_multiplier": 3,
+      "target_multiplier": 4
+    },
+    {
+      "id": "atr_s3_t5",
+      "family": "atr",
+      "stop_multiplier": 3,
+      "target_multiplier": 5
+    },
+    {
+      "id": "atr_s4_t1",
+      "family": "atr",
+      "stop_multiplier": 4,
+      "target_multiplier": 1
+    },
+    {
+      "id": "atr_s4_t1.5",
+      "family": "atr",
+      "stop_multiplier": 4,
+      "target_multiplier": 1.5
+    },
+    {
+      "id": "atr_s4_t2",
+      "family": "atr",
+      "stop_multiplier": 4,
+      "target_multiplier": 2
+    },
+    {
+      "id": "atr_s4_t2.5",
+      "family": "atr",
+      "stop_multiplier": 4,
+      "target_multiplier": 2.5
+    },
+    {
+      "id": "atr_s4_t3",
+      "family": "atr",
+      "stop_multiplier": 4,
+      "target_multiplier": 3
+    },
+    {
+      "id": "atr_s4_t4",
+      "family": "atr",
+      "stop_multiplier": 4,
+      "target_multiplier": 4
+    },
+    {
+      "id": "atr_s4_t5",
+      "family": "atr",
+      "stop_multiplier": 4,
+      "target_multiplier": 5
+    },
+    {
+      "id": "r_s0.75_r0.75",
+      "family": "r_multiple",
+      "stop_multiplier": 0.75,
+      "reward_risk": 0.75
+    },
+    {
+      "id": "r_s0.75_r1",
+      "family": "r_multiple",
+      "stop_multiplier": 0.75,
+      "reward_risk": 1
+    },
+    {
+      "id": "r_s0.75_r1.25",
+      "family": "r_multiple",
+      "stop_multiplier": 0.75,
+      "reward_risk": 1.25
+    },
+    {
+      "id": "r_s0.75_r1.5",
+      "family": "r_multiple",
+      "stop_multiplier": 0.75,
+      "reward_risk": 1.5
+    },
+    {
+      "id": "r_s0.75_r2",
+      "family": "r_multiple",
+      "stop_multiplier": 0.75,
+      "reward_risk": 2
+    },
+    {
+      "id": "r_s0.75_r2.5",
+      "family": "r_multiple",
+      "stop_multiplier": 0.75,
+      "reward_risk": 2.5
+    },
+    {
+      "id": "r_s0.75_r3",
+      "family": "r_multiple",
+      "stop_multiplier": 0.75,
+      "reward_risk": 3
+    },
+    {
+      "id": "r_s1_r0.75",
+      "family": "r_multiple",
+      "stop_multiplier": 1,
+      "reward_risk": 0.75
+    },
+    {
+      "id": "r_s1_r1",
+      "family": "r_multiple",
+      "stop_multiplier": 1,
+      "reward_risk": 1
+    },
+    {
+      "id": "r_s1_r1.25",
+      "family": "r_multiple",
+      "stop_multiplier": 1,
+      "reward_risk": 1.25
+    },
+    {
+      "id": "r_s1_r1.5",
+      "family": "r_multiple",
+      "stop_multiplier": 1,
+      "reward_risk": 1.5
+    },
+    {
+      "id": "r_s1_r2",
+      "family": "r_multiple",
+      "stop_multiplier": 1,
+      "reward_risk": 2
+    },
+    {
+      "id": "r_s1_r2.5",
+      "family": "r_multiple",
+      "stop_multiplier": 1,
+      "reward_risk": 2.5
+    },
+    {
+      "id": "r_s1_r3",
+      "family": "r_multiple",
+      "stop_multiplier": 1,
+      "reward_risk": 3
+    },
+    {
+      "id": "r_s1.25_r0.75",
+      "family": "r_multiple",
+      "stop_multiplier": 1.25,
+      "reward_risk": 0.75
+    },
+    {
+      "id": "r_s1.25_r1",
+      "family": "r_multiple",
+      "stop_multiplier": 1.25,
+      "reward_risk": 1
+    },
+    {
+      "id": "r_s1.25_r1.25",
+      "family": "r_multiple",
+      "stop_multiplier": 1.25,
+      "reward_risk": 1.25
+    },
+    {
+      "id": "r_s1.25_r1.5",
+      "family": "r_multiple",
+      "stop_multiplier": 1.25,
+      "reward_risk": 1.5
+    },
+    {
+      "id": "r_s1.25_r2",
+      "family": "r_multiple",
+      "stop_multiplier": 1.25,
+      "reward_risk": 2
+    },
+    {
+      "id": "r_s1.25_r2.5",
+      "family": "r_multiple",
+      "stop_multiplier": 1.25,
+      "reward_risk": 2.5
+    },
+    {
+      "id": "r_s1.25_r3",
+      "family": "r_multiple",
+      "stop_multiplier": 1.25,
+      "reward_risk": 3
+    },
+    {
+      "id": "r_s1.5_r0.75",
+      "family": "r_multiple",
+      "stop_multiplier": 1.5,
+      "reward_risk": 0.75
+    },
+    {
+      "id": "r_s1.5_r1",
+      "family": "r_multiple",
+      "stop_multiplier": 1.5,
+      "reward_risk": 1
+    },
+    {
+      "id": "r_s1.5_r1.25",
+      "family": "r_multiple",
+      "stop_multiplier": 1.5,
+      "reward_risk": 1.25
+    },
+    {
+      "id": "r_s1.5_r1.5",
+      "family": "r_multiple",
+      "stop_multiplier": 1.5,
+      "reward_risk": 1.5
+    },
+    {
+      "id": "r_s1.5_r2",
+      "family": "r_multiple",
+      "stop_multiplier": 1.5,
+      "reward_risk": 2
+    },
+    {
+      "id": "r_s1.5_r2.5",
+      "family": "r_multiple",
+      "stop_multiplier": 1.5,
+      "reward_risk": 2.5
+    },
+    {
+      "id": "r_s1.5_r3",
+      "family": "r_multiple",
+      "stop_multiplier": 1.5,
+      "reward_risk": 3
+    },
+    {
+      "id": "r_s2_r0.75",
+      "family": "r_multiple",
+      "stop_multiplier": 2,
+      "reward_risk": 0.75
+    },
+    {
+      "id": "r_s2_r1",
+      "family": "r_multiple",
+      "stop_multiplier": 2,
+      "reward_risk": 1
+    },
+    {
+      "id": "r_s2_r1.25",
+      "family": "r_multiple",
+      "stop_multiplier": 2,
+      "reward_risk": 1.25
+    },
+    {
+      "id": "r_s2_r1.5",
+      "family": "r_multiple",
+      "stop_multiplier": 2,
+      "reward_risk": 1.5
+    },
+    {
+      "id": "r_s2_r2",
+      "family": "r_multiple",
+      "stop_multiplier": 2,
+      "reward_risk": 2
+    },
+    {
+      "id": "r_s2_r2.5",
+      "family": "r_multiple",
+      "stop_multiplier": 2,
+      "reward_risk": 2.5
+    },
+    {
+      "id": "r_s2_r3",
+      "family": "r_multiple",
+      "stop_multiplier": 2,
+      "reward_risk": 3
+    },
+    {
+      "id": "r_s2.5_r0.75",
+      "family": "r_multiple",
+      "stop_multiplier": 2.5,
+      "reward_risk": 0.75
+    },
+    {
+      "id": "r_s2.5_r1",
+      "family": "r_multiple",
+      "stop_multiplier": 2.5,
+      "reward_risk": 1
+    },
+    {
+      "id": "r_s2.5_r1.25",
+      "family": "r_multiple",
+      "stop_multiplier": 2.5,
+      "reward_risk": 1.25
+    },
+    {
+      "id": "r_s2.5_r1.5",
+      "family": "r_multiple",
+      "stop_multiplier": 2.5,
+      "reward_risk": 1.5
+    },
+    {
+      "id": "r_s2.5_r2",
+      "family": "r_multiple",
+      "stop_multiplier": 2.5,
+      "reward_risk": 2
+    },
+    {
+      "id": "r_s2.5_r2.5",
+      "family": "r_multiple",
+      "stop_multiplier": 2.5,
+      "reward_risk": 2.5
+    },
+    {
+      "id": "r_s2.5_r3",
+      "family": "r_multiple",
+      "stop_multiplier": 2.5,
+      "reward_risk": 3
+    },
+    {
+      "id": "r_s3_r0.75",
+      "family": "r_multiple",
+      "stop_multiplier": 3,
+      "reward_risk": 0.75
+    },
+    {
+      "id": "r_s3_r1",
+      "family": "r_multiple",
+      "stop_multiplier": 3,
+      "reward_risk": 1
+    },
+    {
+      "id": "r_s3_r1.25",
+      "family": "r_multiple",
+      "stop_multiplier": 3,
+      "reward_risk": 1.25
+    },
+    {
+      "id": "r_s3_r1.5",
+      "family": "r_multiple",
+      "stop_multiplier": 3,
+      "reward_risk": 1.5
+    },
+    {
+      "id": "r_s3_r2",
+      "family": "r_multiple",
+      "stop_multiplier": 3,
+      "reward_risk": 2
+    },
+    {
+      "id": "r_s3_r2.5",
+      "family": "r_multiple",
+      "stop_multiplier": 3,
+      "reward_risk": 2.5
+    },
+    {
+      "id": "r_s3_r3",
+      "family": "r_multiple",
+      "stop_multiplier": 3,
+      "reward_risk": 3
+    },
+    {
+      "id": "r_s4_r0.75",
+      "family": "r_multiple",
+      "stop_multiplier": 4,
+      "reward_risk": 0.75
+    },
+    {
+      "id": "r_s4_r1",
+      "family": "r_multiple",
+      "stop_multiplier": 4,
+      "reward_risk": 1
+    },
+    {
+      "id": "r_s4_r1.25",
+      "family": "r_multiple",
+      "stop_multiplier": 4,
+      "reward_risk": 1.25
+    },
+    {
+      "id": "r_s4_r1.5",
+      "family": "r_multiple",
+      "stop_multiplier": 4,
+      "reward_risk": 1.5
+    },
+    {
+      "id": "r_s4_r2",
+      "family": "r_multiple",
+      "stop_multiplier": 4,
+      "reward_risk": 2
+    },
+    {
+      "id": "r_s4_r2.5",
+      "family": "r_multiple",
+      "stop_multiplier": 4,
+      "reward_risk": 2.5
+    },
+    {
+      "id": "r_s4_r3",
+      "family": "r_multiple",
+      "stop_multiplier": 4,
+      "reward_risk": 3
+    },
+    {
+      "id": "v1_control",
+      "family": "control",
+      "stop": 0.07,
+      "target": 0.1
+    },
+    {
+      "id": "target_only",
+      "family": "control",
+      "stop": null,
+      "target": 0.1
+    },
+    {
+      "id": "stop_only",
+      "family": "control",
+      "stop": 0.07,
+      "target": null
+    },
+    {
+      "id": "time_only",
+      "family": "control",
+      "stop": null,
+      "target": null
+    }
+  ],
+  "candidate_count": 136,
+  "selectable_candidate_count": 132,
+  "family_count": 3,
+  "structure_family": "Deferred to EXP-005; not tested",
+  "selection": {
+    "objective": "maximum pooled training mean net return per completed independent event",
+    "minimum_training_trades": 200,
+    "tie_break": "exact mean EV ties: lexicographically ascending candidate id",
+    "controls_selectable": false,
+    "insufficient_history": "use v1_control; report fallback",
+    "plateau_ev_tolerance": 0.0005,
+    "plateau_rule": "at least 3 near-best family candidates and 2 grid-adjacent near-best neighbours of family winner"
+  },
+  "walkforward": {
+    "initial_history_years": 4,
+    "origin": "2016-09-29",
+    "test_windows": "annual SPY observed sessions; expanding prefix training; partial last year",
+    "censoring": "entire 10-bar outcome path must end within training or OOS boundary; no forced liquidation",
+    "classification": "Historical fold-OOS for this algorithm, on consumed dates; not fresh temporal validation"
+  },
+  "uncertainty": {
+    "block_size": 20,
+    "n_bootstrap": 2000,
+    "seed": 42
+  },
+  "efficiency": {
+    "mfe_window": 10,
+    "capture": "signed gross realized return / full ten-bar MFE; zero MFE undefined",
+    "post_exit": "strictly after exit session through original tenth holding bar; high relative to original entry",
+    "recovery_thresholds": [
+      0.02,
+      0.05,
+      0.1
+    ],
+    "selection_use": false
+  },
+  "risk": {
+    "r": "net return / initial stop fraction; no-stop controls have undefined R",
+    "drawdown": "per-ticker strictly non-overlapping trade-close compounding; pooled drawdown undefined"
+  },
+  "prospective": {
+    "status": "Prospective evaluation pending genuine paper-signal outcomes.",
+    "policy": "training-selection algorithm fixed before outcomes; no OOS choice of historical candidate",
+    "reviews": "EXP-003 registered dates and coverage gate; no interim outcome inspection",
+    "outcome_evaluation_authorized": false
+  }
+}
