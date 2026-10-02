@@ -113,6 +113,15 @@ The final test partition is designated historical out-of-sample for this fixed
 specification; reporting it consumes the holdout. It must not become a tuning set.
 It is not prospective unseen evidence or a point-in-time dataset.
 
+## Optional barriers for separately registered exit research
+
+The EXP-004 extension allows `stop_loss=None` or `take_profit=None` to disable
+that barrier. `stop_loss_column` / `take_profit_column` name causal fractions on
+the signal row, frozen through the trade and anchored to its next open. Event
+fractions must be valid; missing values raise. This is the same fill/cost engine,
+not a second simulator. Default V1 ledgers are unchanged. See
+[EXP004_ADAPTIVE_EXITS.md](EXP004_ADAPTIVE_EXITS.md) for registration and diagnostics.
+
 ## Baselines
 
 The same forward-outcome function supports `selection=eligible` (all ready rows,

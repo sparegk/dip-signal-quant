@@ -1,5 +1,9 @@
 # Adaptive exits and expected value
 
+This unrun preparation was superseded, at explicit user request before results,
+by [EXP-004 revision 2](EXP004_ADAPTIVE_EXITS.md). The original configuration
+remains preserved; the current catalogue is `config/exp004.json`.
+
 **Status: preparation only. No new exit setting has been selected or tested.**
 
 V1 stays frozen at +10% target, -7% stop and 10 observed bars. EXP-001/002

@@ -501,3 +501,16 @@ prospective observations can yet be collected.
   holding period and explicit bounds isolate exit distances.
 - Historical fold OOS reuses consumed dates and is labeled accordingly. Prior
   experiments/archive remain unchanged. Structure-aware exits are deferred.
+
+## 2026-10-02 - EXP-004 tested evaluation implementation
+
+- Extended the original engine for disabled and signal-row percentage barriers.
+  Default fixed-control ledgers exactly reproduce all 7,597 events in both modes.
+- Added training-only selection, family winners, maturity gates, independent and
+  non-overlapping comparisons, EV/R/frontier/plateau diagnostics, signed MFE capture
+  and isolated post-stop recovery diagnostics. Hash-verified offline runner and
+  report generator preserve the original snapshots and event identities.
+- 155 relevant tests passed, including future-price/ATR leakage regressions and
+  deterministic artifact generation. No new exit settings were chosen before
+  registration `55a4c5b` was pushed. Main evaluation follows this implementation.
+- Full suite: 582 passed with warnings treated as errors; `pip check` passed.

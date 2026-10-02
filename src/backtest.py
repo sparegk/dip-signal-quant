@@ -250,11 +250,16 @@ def _touch(value: float, level: float, *, above: bool) -> bool:
 
 
 def simulate_barrier_trades(
-    data: pd.DataFrame, *, take_profit: float = .10, stop_loss: float = .07,
+    data: pd.DataFrame, *, take_profit: float | None = .10, stop_loss: float | None = .07,
     max_holding_bars: int = 10, ambiguity_policy: str = "conservative",
     mode: str = "independent", commission_rate: float = 0, slippage_rate: float = 0,
+    take_profit_column: str | None = None, stop_loss_column: str | None = None,
 ) -> pd.DataFrame:
-    """Audit every event; simulate long next-open entry and first-hit fixed exits.
+    """Audit every event; simulate long next-open entry and first-hit exits.
+
+    None disables that barrier. Optional columns override scalar rates with
+    fractions on the signal row, fixed for that trade; callers must supply causal
+    values. Missing/invalid fractions at events raise rather than skip a trade.
 
     Non-overlapping mode refuses a proposed entry on/before that ticker's prior
     exit date (no same-open recycling). Incomplete MAX windows are excluded before
@@ -262,11 +267,11 @@ def simulate_barrier_trades(
     Trade MFE/MAE are full-bar envelopes through an intraday exit bar, not exact
     pre-exit excursions; for open exits, only that open is included on the exit day.
     """
-    if (isinstance(take_profit, (bool, np.bool_)) or not isinstance(take_profit, Real)
+    if take_profit is not None and (isinstance(take_profit, (bool, np.bool_)) or not isinstance(take_profit, Real)
             or not np.isfinite(take_profit) or take_profit <= 0):
         raise ValueError("take_profit must be a finite positive fraction")
-    target = float(take_profit)
-    stop = _rate(stop_loss, "stop_loss", positive=True)
+    target = None if take_profit is None else float(take_profit)
+    stop = None if stop_loss is None else _rate(stop_loss, "stop_loss", positive=True)
     holding = _positive_integer(max_holding_bars, "max_holding_bars")
     commission = _rate(commission_rate, "commission_rate")
     slippage = _rate(slippage_rate, "slippage_rate")
@@ -275,56 +280,77 @@ def simulate_barrier_trades(
     if mode not in ("independent", "non_overlapping"):
         raise ValueError("mode must be independent or non_overlapping")
     base = _prepare(data)
+    for column in (take_profit_column, stop_loss_column):
+        if column is not None and (not isinstance(column, str) or column not in base
+                or not pd.api.types.is_numeric_dtype(base[column])
+                or pd.api.types.is_bool_dtype(base[column])
+                or pd.api.types.is_complex_dtype(base[column])):
+            raise ValueError("Barrier columns must name real numeric signal-time fractions")
     rows = []
     for _, group in base.groupby("ticker", sort=False, observed=True):
         group = group.reset_index(drop=True)
+        identities = group[list(IDENTITY)].to_dict("records")
+        timestamps = group.timestamp.to_numpy()
+        prices = group[["open", "high", "low", "close"]].to_numpy(dtype=float)
+        splits = group.split.to_numpy()
+        stop_values = None if stop_loss_column is None else group[stop_loss_column].to_numpy(dtype=float)
+        target_values = None if take_profit_column is None else group[take_profit_column].to_numpy(dtype=float)
         last_exit = -1
         for i in np.flatnonzero(group.dip_event_v1.to_numpy(dtype=bool)):
-            status = _window_status(group, i, holding)
+            event_stop = stop if stop_values is None else _rate(stop_values[i], "event stop", positive=True)
+            event_target = target if target_values is None else target_values[i]
+            if event_target is not None and (not np.isfinite(event_target) or event_target <= 0):
+                raise ValueError("Event target must be a finite positive fraction")
+            status = ("no_next_bar" if i + 1 >= len(group) else
+                      "incomplete_window" if i + holding >= len(group) else
+                      "split_boundary" if splits[i] != splits[i + holding] else "completed")
             if mode == "non_overlapping" and i + 1 <= last_exit:
                 status = "overlap"
-            row = dict(group.loc[i, list(IDENTITY)].to_dict(), status=status,
+            row = dict(identities[i], status=status,
                        entry_timestamp=pd.NaT, entry_price=np.nan, entry_fill_price=np.nan,
                        exit_timestamp=pd.NaT, exit_price=np.nan, exit_fill_price=np.nan,
                        exit_reason=None, fill_type=None, holding_bars=np.nan,
                        gross_return=np.nan, net_return=np.nan, mfe=np.nan, mae=np.nan,
                        ambiguous_bar=False, excursion_scope=None)
+            if take_profit_column is not None or stop_loss_column is not None:
+                row.update(stop_fraction=event_stop, target_fraction=event_target)
             if status != "completed":
                 rows.append(row)
                 continue
             entry_index = i + 1
-            entry = float(group.open.iloc[entry_index])
-            upper, lower = entry * (1 + target), entry * (1 - stop)
-            if not np.isfinite([upper, lower]).all():
+            entry = float(prices[entry_index, 0])
+            upper = None if event_target is None else entry * (1 + event_target)
+            lower = None if event_stop is None else entry * (1 - event_stop)
+            if not all(np.isfinite(level) for level in (upper, lower) if level is not None):
                 raise ValueError("Numerical overflow in barrier prices")
-            if not 0 < lower < entry < upper:
+            if ((lower is not None and not 0 < lower < entry)
+                    or (upper is not None and not entry < upper)):
                 raise ValueError("Barrier prices must be representably separated from entry")
             best, worst = entry, entry
             for j in range(entry_index, entry_index + holding):
-                bar = group.iloc[j]
-                opening = float(bar.open)
+                opening, high, low, closing = map(float, prices[j])
                 reason, price, fill = None, np.nan, None
                 ambiguous = False
-                if _touch(opening, lower, above=False):
+                if lower is not None and _touch(opening, lower, above=False):
                     reason, price, fill = "stop_loss", opening, "open"
-                elif _touch(opening, upper, above=True):
+                elif upper is not None and _touch(opening, upper, above=True):
                     reason, price, fill = "take_profit", opening, "open"
                 else:
-                    tp = _touch(float(bar.high), upper, above=True)
-                    sl = _touch(float(bar.low), lower, above=False)
+                    tp = upper is not None and _touch(high, upper, above=True)
+                    sl = lower is not None and _touch(low, lower, above=False)
                     ambiguous = tp and sl
                     if sl and (not tp or ambiguity_policy == "conservative"):
                         reason, price, fill = "stop_loss", lower, "barrier"
                     elif tp:
                         reason, price, fill = "take_profit", upper, "barrier"
                     elif j == entry_index + holding - 1:
-                        reason, price, fill = "time_exit", float(bar.close), "close"
-                best = max(best, opening if fill == "open" else float(bar.high))
-                worst = min(worst, opening if fill == "open" else float(bar.low))
+                        reason, price, fill = "time_exit", closing, "close"
+                best = max(best, opening if fill == "open" else high)
+                worst = min(worst, opening if fill == "open" else low)
                 if reason is not None:
                     last_exit = j
-                    row.update(entry_timestamp=group.timestamp.iloc[entry_index], entry_price=entry,
-                               exit_timestamp=bar.timestamp, exit_price=price, exit_reason=reason,
+                    row.update(entry_timestamp=timestamps[entry_index], entry_price=entry,
+                               exit_timestamp=timestamps[j], exit_price=price, exit_reason=reason,
                                fill_type=fill, holding_bars=j - entry_index + 1,
                                mfe=best / entry - 1, mae=worst / entry - 1,
                                ambiguous_bar=ambiguous,
@@ -335,7 +361,11 @@ def simulate_barrier_trades(
     columns = (*IDENTITY, "status", "entry_timestamp", "entry_price", "entry_fill_price",
                "exit_timestamp", "exit_price", "exit_fill_price", "exit_reason", "fill_type",
                "holding_bars", "gross_return", "net_return", "mfe", "mae", "ambiguous_bar", "excursion_scope")
+    extra = {}
+    if take_profit_column is not None or stop_loss_column is not None:
+        columns += ("stop_fraction", "target_fraction")
+        extra.update(take_profit_column=take_profit_column, stop_loss_column=stop_loss_column)
     return _frame(rows, columns, data, kind="barrier_trades", take_profit=target, stop_loss=stop,
                   max_holding_bars=holding, ambiguity_policy=ambiguity_policy, mode=mode,
                   commission_rate=commission, slippage_rate=slippage,
-                  entry="next_observed_open", barriers="un-slipped_entry_open")
+                  entry="next_observed_open", barriers="un-slipped_entry_open", **extra)
