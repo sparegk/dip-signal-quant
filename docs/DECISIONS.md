@@ -381,3 +381,19 @@ Consequences: 132 searchable candidates create multiple-testing risk. Existing
 historical dates remain consumed; fold OOS is not fresh validation. Non-overlap
 drawdown is per ticker, never a fabricated pooled portfolio. Post-exit diagnostics
 are isolated from selection. Prospective outcomes remain pending.
+
+## ADR-023 - Retain the exit study's EV/risk trade-offs
+
+Date: 2026-10-02. Status: Accepted after the registered EXP-004 evaluation.
+
+Decision: Report improved historical EV versus V1 alongside the superior EV of
+time-only, lower EV per unit of stop risk, deeper worst-ticker drawdown, retained
+negative year/tickers and selection instability. Keep V1 as the control; do not
+promote an OOS winner into an allegedly validated strategy.
+
+Reason: Rebound capture and downside are different objectives. Wider barriers
+can improve percentage EV while increasing risk. All historical periods were
+already consumed; prospective records/outcomes provide the next distinct test.
+
+Consequence: Structure-aware protection stays an EXP-005 hypothesis only. No
+candidate, bounds, holding period or selection rule changes after these results.

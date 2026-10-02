@@ -522,3 +522,22 @@ prospective observations can yet be collected.
 - Extended result-ignore rules to cover EXP-004 and its replay directory; the
   earlier rule covered EXP-002 only. Added the lower-bound R-target regression.
   No execution code, candidate settings or selection method changed.
+
+## 2026-10-02 - EXP-004 historical results and final verification
+
+- Same-entry training-selected policies improve net EV, median, win rate and PF
+  versus V1. Time-only has higher pooled EV; selected EV in R is lower, fifth-
+  percentile losses and worst-ticker drawdown are worse. Negative 2022/tickers,
+  near-zero-MFE ratio sensitivity and unstable selections remain visible.
+- Full tables are generated from verified artifacts in `EXP004_ADAPTIVE_EXITS.md`.
+  No candidates, bounds, holding periods or selection criteria changed after
+  results. All 15 artifact hashes, execution hashes and input vintages match the
+  independent replay. The first receipt records pending non-execution safeguards;
+  the clean replay is on `a5fe4af`.
+- Audited 61,379 completed OOS records plus all training choices. Original V1 OOS
+  execution fields match; all 374 frozen files and previous registry sections
+  remain unchanged. Archive remains 95 retrospective records, no genuine
+  prospective outcome evidence.
+- Final checks: 583 tests passed with warnings treated as errors; `pip check`
+  passed. Generated/private results stay ignored. Historical research is complete;
+  prospective validation and EXP-005 structure-aware hypothesis are not begun.

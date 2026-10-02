@@ -11,7 +11,8 @@
 - [x] Initial outcome evaluation / research backtest foundation (EXP-001)
 - [x] Initial unconditional-stock and matched-SPY baseline comparisons (EXP-001)
 - [ ] Support-memory model
-- [ ] Dynamic exit/risk research (EXP-004 preregistered; not evaluated)
+- [x] Initial adaptive exit-policy research and training-selection framework (EXP-004; historical only)
+- [ ] Prospective confirmation of adaptive exits
 - [x] Frozen V1 historical walk-forward infrastructure and static-universe EXP-002
 - [ ] Genuine point-in-time universe/data validation
 - [ ] Pre-registered large-cap technology / AI comparison (proposal only)
@@ -45,3 +46,9 @@ ML, continuous scanner or trading milestone is authorized by this completion.
 The local frontend visualizes preserved research and collection records. It adds
 no new strategy, historical performance evaluation, live collection or prospective
 outcome scoring. Public hosting and an API remain separate future work.
+
+EXP-004 compares a fixed catalogue of exit policies without changing V1 entries.
+Training-selected exits improve historical EV versus the fixed control, while a
+time-only control has higher pooled EV. Tail loss/drawdown and EV per unit of
+stop risk do not uniformly improve. Historical exit research is complete;
+profitable strategy validation and prospective confirmation remain incomplete.

@@ -64,7 +64,9 @@ def render_report(directory: Path) -> str:
         f"V1 {pct(control.expected_value)}; paired difference {pct(ci['mean'])}.** "
         f"Positive EV differences occur in {int((fold_diff > 0).sum())}/{len(fold_diff)} folds and "
         f"{int((ticker_excess > 0).sum())}/{len(ticker_excess)} tickers. "
-        "These reused historical periods do not establish future profitability.", "",
+        f"The time-only control has higher EV ({pct(primary.loc['time_only','expected_value'])}); "
+        f"selected EV in R is {number(selected.expectancy_r)} versus V1 {number(control.expectancy_r)}, "
+        "and worst-ticker drawdown is deeper. These reused historical periods do not establish future profitability.", "",
         f"{metadata['candidate_count']} configurations ({metadata['selectable_candidate_count']} searchable, "
         f"{metadata['family_count']} families, four controls); {metadata['requested_count']} requested / "
         f"{metadata['usable_count']} usable tickers, with the original exclusions retained. "
@@ -114,6 +116,9 @@ def render_report(directory: Path) -> str:
     lines.append("Drawdowns above are per-ticker strictly non-overlapping trade-close compounding. "
                  "Pooled portfolio drawdown is undefined; intratrade and daily losses are not measured. "
                  "No-stop controls have undefined R.\n")
+    lines.append(table("Independent-event risk-normalized returns",["Policy","Defined R N","Mean R / EV in R","Median R","Win rate in R","Average winning R","Average losing R"],
+        [[policy,int(row.r_count),number(row.expectancy_r),number(row.median_r),pct(row.r_win_rate),
+          number(row.average_winning_r),number(row.average_losing_r)] for policy,row in primary.iterrows()]))
     lines.append(table("All fold independent net EV",["Fold",*list(p.columns)],
                        [[index,*[pct(value) for value in row]] for index,row in p.iterrows()]))
     ledger = t["oos_results"]
@@ -130,6 +135,8 @@ def render_report(directory: Path) -> str:
             number(row.median_capture),int(row.capture_count),pct(row.mean_remaining_mfe),int(row.stopped_count),
             *[f"{int(row[f'recovery_{v}pct_count'])}/{int(row[f'recovery_{v}pct_measurable_stops'])} ({pct(row[f'recovery_{v}pct_rate'])})" for v in (2,5,10)]])
     lines.append(table("Excursion capture and post-exit recovery",["Policy","Full MFE","Full MAE","Mean capture","Median capture","Defined capture N","Remaining MFE","Stops","Entry+2% after exit","Entry+5%","Entry+10%"],rows))
+    lines.append("Signed capture ratios can be very negative when a losing trade has near-zero positive MFE. "
+                 "The negative means are retained; the median is more stable. Neither is used for selection.\n")
     rows = []
     for policy,group in paired.groupby("policy",sort=True):
         x = group.groupby("ticker").paired_net_difference.mean()
