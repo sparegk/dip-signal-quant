@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "status": "exploratory_historical_only",
+  "source": "frozen EXP-002 observations/events and EXP-004 artifacts",
+  "horizons": [1, 3, 5, 10, 20],
+  "path_bars": 10,
+  "rebound_levels": [0.02, 0.05, 0.10],
+  "support": {
+    "prior_recovery": 0.05,
+    "maturity_bars": 10,
+    "maximum_age_calendar_days": 365,
+    "zone_distance": 0.02,
+    "price_reference": "prior signal low versus current signal close",
+    "success_reference": "prior next-open entry to highest high over next ten observed bars"
+  },
+  "groups": {
+    "return_5d": [-0.05, 0.0],
+    "atr_pct_14": [0.02, 0.04],
+    "relative_volume_20d": [1.0, 2.0],
+    "relative_return_10d": [-0.05, 0.0],
+    "drawdown_change_5": [-0.05, 0.0],
+    "benchmark_return_20d": [-0.05, 0.0],
+    "benchmark_drawdown_20d": [-0.10, -0.05],
+    "benchmark_volatility_20d": [0.15, 0.25],
+    "entry_gap": [-0.01, 0.01]
+  },
+  "selection": "none; no subgroup changes V1 or exit policies",
+  "boundary": "only complete within-fold outcomes; prior support outcome must mature strictly before current signal"
+}
