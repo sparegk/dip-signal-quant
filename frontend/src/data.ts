@@ -27,6 +27,9 @@ export type Series = {
   availability: string
 }
 export type ArchiveRecord = {
+  decision_context?: { features: Row; regime: string; prior_successful_visits: number }
+  context_classification?: string | null
+  expected_entry_timestamp?: string | null
   record_id: string
   ticker: string
   session: string
@@ -92,6 +95,9 @@ export type Exp2 = {
   }
 }
 export type Dashboard = {
+  exp004?: { status: string; reason?: string; tables?: Record<string, Row[]> }
+  diagnosis?: { status: string; reason?: string; tables?: Record<string, Row[]> }
+  hypotheses?: Hypothesis[]
   schema_version: number
   as_of: string
   last_research_update: string
@@ -122,6 +128,19 @@ export type Dashboard = {
   documents: Record<string, string>
   research_log: { date: string; title: string; body: string }[]
   roadmap: { title: string; status: string }[]
+}
+export type Hypothesis = {
+  id: string
+  name: string
+  rank: number
+  motivation: string
+  evidence: string
+  mechanism: string
+  features: string
+  lookahead_risk: string
+  future_test: string
+  status: string
+  overfitting_risk: string
 }
 
 const dataBase = `${import.meta.env.BASE_URL}data/`

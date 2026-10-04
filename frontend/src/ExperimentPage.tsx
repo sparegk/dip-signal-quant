@@ -4,6 +4,7 @@ import { comparisonColumns, DataTable, Disclosure, Metric, Note, PageTitle } fro
 import { docURL, type Dashboard, type Experiment } from './data'
 import { Document, tradeColumns } from './Research'
 import { Evidence } from './Overview'
+import ExitResearch from './ExitResearch'
 
 export default function Experiments({ data }: { data: Dashboard }) {
   const [id, setId] = useState('EXP-002')
@@ -30,6 +31,11 @@ export default function Experiments({ data }: { data: Dashboard }) {
         ))}
       </div>
       {selected && <ExperimentBrief key={selected.id} experiment={selected} data={data} />}
+      {selected?.id === 'EXP-004' && (
+        <Disclosure title="Explore the exit comparisons">
+          <ExitResearch data={data} />
+        </Disclosure>
+      )}
     </>
   )
 }

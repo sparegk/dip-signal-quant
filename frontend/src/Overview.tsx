@@ -57,6 +57,13 @@ export default function Overview({ data }: { data: Dashboard }) {
   const trade = research.tables.trade_oos_summary.find((row) => row.mode === 'non_overlapping')!
   return (
     <>
+      {data.exp004?.status === 'available' && (
+        <Note warning>
+          <strong>Exit research:</strong> adaptive exits improved historical EV versus V1, but
+          ten-bar holding averaged more and adaptive losses were larger.{' '}
+          <a href="#exit-research">Compare profit and risk →</a>
+        </Note>
+      )}
       <PageTitle eyebrow="Research overview / EXP-002" title="DipSignal V1">
         Can unusually weak stocks bounce? Here is what the research shows so far.
       </PageTitle>

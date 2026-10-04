@@ -4,8 +4,16 @@ import Experiments from './ExperimentPage'
 import { DataQuality, PaperArchive } from './Preservation'
 import { Signals } from './Explorer'
 import { Empty } from './components'
+import ExitResearch from './ExitResearch'
+import { Diagnosis, Hypotheses } from './Diagnosis'
 export default function ResearchRouter({ page, data }: { page: string; data: Dashboard }) {
   switch (page) {
+    case 'exit-research':
+      return <ExitResearch data={data} />
+    case 'research-diagnosis':
+      return <Diagnosis data={data} />
+    case 'hypotheses':
+      return <Hypotheses data={data} />
     case 'signals':
       return <Signals data={data} />
     case 'experiments':

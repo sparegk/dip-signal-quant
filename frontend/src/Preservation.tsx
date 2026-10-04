@@ -133,6 +133,13 @@ export function PaperArchive({ data }: { data: Dashboard }) {
               {selected.ticker} · {selected.session}
             </h3>
             <dl className="facts">
+              <dt>Expected execution opportunity</dt>
+              <dd>
+                {selected.expected_entry_timestamp || 'Unavailable'} (scheduled; actual entry not
+                yet observed)
+              </dd>
+              <dt>Context preservation</dt>
+              <dd>{selected.context_classification || 'No context sidecar preserved'}</dd>
               <dt>Classification</dt>
               <dd>{selected.classification}</dd>
               <dt>Record identity</dt>
@@ -148,6 +155,25 @@ export function PaperArchive({ data }: { data: Dashboard }) {
               <dt>Input SHA-256</dt>
               <dd className="hash">{selected.input_hash || 'No preserved validated input'}</dd>
             </dl>
+            {selected.decision_context && (
+              <Disclosure title="Additional information known at signal time">
+                <p>
+                  Regime: {selected.decision_context.regime}; mature prior-zone visits:{' '}
+                  {selected.decision_context.prior_successful_visits}. Context timing is separate
+                  from the original signal classification.
+                </p>
+                <DataTable
+                  rows={Object.entries(selected.decision_context.features).map(
+                    ([feature, value]) => ({ feature, value }),
+                  )}
+                  columns={[
+                    { key: 'feature', label: 'Causal feature' },
+                    { key: 'value', label: 'Recorded value', format: 'number' },
+                  ]}
+                  caption="Preserved decision context"
+                />
+              </Disclosure>
+            )}
             {selected.values ? (
               <DataTable
                 rows={Object.entries(selected.values).map(([key, value]) => ({

@@ -23,6 +23,7 @@ from src.features import build_features
 from src.paper_archive import coverage, load_protocol, verify_run
 from src.preservation import canonical_json, digest, publish, read_record
 from src.signals import build_signals
+from scripts.dashboard_research import export_exp004, export_diagnosis, hypothesis_registry
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -231,6 +232,9 @@ def export_archive(root: Path, config: dict, as_of: str) -> dict:
         if verified["status"] == "interrupted":
             continue
         result = read_record(path.parent / "result.json")
+        from src.archive_context import read_context
+        context = read_context(directory, intent["run_id"])
+        context_rows = {row["ticker"]: row for row in context["payload"]["records"]} if context else {}
         for row in result["records"]:
             source = result["inputs"][row["ticker"]]
             rows.append({**run, **row, "run_status": run["status"], "classification": verified["classifications"][row["ticker"]],
@@ -238,7 +242,10 @@ def export_archive(root: Path, config: dict, as_of: str) -> dict:
                          "retrieved_at": source.get("provenance", {}).get("retrieved_at"),
                          # Do not export raw exception strings containing local filesystem paths.
                          "error": "Input unavailable; inspect the local archive for details" if row["error"] else None,
-                         "outcome": None})
+                         "outcome": None,
+                         "decision_context": context_rows.get(row["ticker"], {}).get("context"),
+                         "context_classification": context["classifications"].get(row["ticker"]) if context else None,
+                         "expected_entry_timestamp": intent["calendar"]["next_open"] if "calendar" in intent else None})
     coverage_rows = [{"session": item["session"], "status": item["status"],
                       "prospective": sum(value == "prospective" for value in item["classifications"].values()),
                       "expected": len(config["universe"])}
@@ -304,6 +311,8 @@ def build_dashboard(root: Path = ROOT, output: Path | None = None, *, as_of: str
         audit = export_audit(root)
     docs = documentation(root)
     data = {"schema_version": 1, "as_of": as_of, "exp001": exp001, "exp002": exp002,
+            "exp004": export_exp004(root, exp002), "diagnosis": export_diagnosis(root),
+            "hypotheses": hypothesis_registry(root),
             "archive": archive, "audit": audit, "feature_catalog": feature_catalog(), **docs}
     files = {"dashboard.json": canonical_json(safe_json(data))}
     for key, value in (series1 | series2).items():
@@ -326,7 +335,8 @@ def build_dashboard(root: Path = ROOT, output: Path | None = None, *, as_of: str
     finally:
         Path(name).unlink(missing_ok=True)
     return {"generation": generation, "ticker_files": len(series1 | series2), "bytes": sum(map(len, files.values())),
-            "sources": {"EXP-001": exp001["status"], "EXP-002": exp002["status"], "EXP-003": audit["status"]}}
+            "sources": {"EXP-001": exp001["status"], "EXP-002": exp002["status"], "EXP-003": audit["status"],
+                        "EXP-004":data["exp004"]["status"], "diagnosis":data["diagnosis"]["status"]}}
 
 
 if __name__ == "__main__":

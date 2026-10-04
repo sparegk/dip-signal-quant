@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "purpose": "signal-time context preservation only; no outcomes or new strategy",
+  "benchmark": "SPY",
+  "regime": "signal-date SPY close versus trailing 200 observed close mean",
+  "support": {
+    "prior_recovery": 0.05,
+    "maturity_bars": 10,
+    "maximum_age_calendar_days": 365,
+    "zone_distance": 0.02
+  },
+  "candidate_exit_policies": [],
+  "adaptive_policy_status": "pending separate prospective registration",
+  "review_policy": "retain EXP-003 review dates and gates; no outcome inspection here"
+}

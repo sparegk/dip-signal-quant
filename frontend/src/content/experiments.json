@@ -17,6 +17,15 @@
     "link": "robustness",
     "next": "See differences across stocks and years"
   },
+  "EXP-004": {
+    "title": "How should we exit a dip?",
+    "question": "Can different exits capture more of the same rebound?",
+    "test": "Select registered candidates using training data only, then compare yearly outcomes on the same independent entries.",
+    "result": "Adaptive exits beat V1's historical EV, but holding ten bars averaged more. Adaptive exits allowed larger losses.",
+    "limitation": "Many candidates and consumed history. A better prospective strategy has not been established.",
+    "link": "exit-research",
+    "next": "Compare expected profit and downside"
+  },
   "EXP-003": {
     "title": "Can we trust and preserve the data?",
     "question": "Why were stocks excluded, and how can future signals be recorded fairly?",

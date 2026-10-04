@@ -20,6 +20,9 @@ test('real artifacts render every view without browser errors', async ({ page })
   for (const [route, heading] of [
     ['robustness', 'How broadly does the behavior survive?'],
     ['backtest', 'Outcomes, with execution assumptions'],
+    ['exit-research', 'How Should We Exit a Dip?'],
+    ['research-diagnosis', "Why isn't V1 stronger yet?"],
+    ['hypotheses', 'What deserves a fresh test?'],
     ['experiments', 'What did we learn?'],
     ['paper-archive', 'Paper-signal archive'],
     ['data-quality', 'Small discrepancies. Real research consequences.'],
@@ -78,6 +81,31 @@ test('signal detail, feature filtering and mobile navigation', async ({ page }) 
   expect(errors).toEqual([])
 })
 
+test('exit comparison and exploratory diagnosis retain unfavorable evidence', async ({ page }) => {
+  await page.goto('/#exit-research')
+  await expect(
+    page.getByRole('table', { name: 'Fixed adaptive and time-only comparison' }),
+  ).toContainText('+0.754%')
+  await expect(page.getByRole('table', { name: 'Yearly net EV heatmap' })).toContainText('-0.148%')
+  await page.getByText('Full-window capture and post-stop recovery', { exact: true }).click()
+  await expect(
+    page.getByRole('table', { name: 'Exit capture and recovery diagnostics' }),
+  ).toBeVisible()
+  await page.screenshot({ path: 'test-results/exit-research-desktop.png', fullPage: true })
+  await page.goto('/#research-diagnosis')
+  await page.getByRole('combobox', { name: 'Question', exact: true }).selectOption('support_group')
+  await expect(page.getByRole('table', { name: 'Exploratory diagnostic groups' })).toContainText(
+    '-0.070 pp',
+  )
+  await page.screenshot({ path: 'test-results/diagnosis-desktop.png', fullPage: true })
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/#exit-research')
+  await expect(
+    page.getByRole('heading', { name: 'How Should We Exit a Dip?', exact: true }),
+  ).toBeVisible()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+})
+
 test('brief experiments keep negative evidence and offer optional learning on desktop and mobile', async ({
   page,
 }) => {
@@ -111,4 +139,12 @@ test('brief experiments keep negative evidence and offer optional learning on de
   await expect(page.getByRole('note')).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   await page.screenshot({ path: 'test-results/experiments-brief-mobile.png', fullPage: true })
+  await page.getByRole('tab', { name: /EXP-004/ }).click()
+  await expect(page.getByRole('region', { name: 'EXP-004 short summary' })).toContainText(
+    'Adaptive exits allowed larger losses',
+  )
+  await expect(page.getByRole('table', { name: 'Yearly net EV heatmap' })).toHaveCount(0)
+  await expect(
+    page.getByRole('link', { name: 'Compare expected profit and downside →' }),
+  ).toBeVisible()
 })

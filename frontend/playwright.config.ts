@@ -7,7 +7,14 @@ export default defineConfig({
   workers: 1,
   use: {
     baseURL,
-    channel: process.platform === 'win32' ? 'msedge' : undefined,
+    channel: process.env.PLAYWRIGHT_BROWSER_EXECUTABLE
+      ? undefined
+      : process.platform === 'win32' && !process.env.PLAYWRIGHT_BROWSERS_PATH
+        ? 'msedge'
+        : undefined,
+    launchOptions: process.env.PLAYWRIGHT_BROWSER_EXECUTABLE
+      ? { executablePath: process.env.PLAYWRIGHT_BROWSER_EXECUTABLE }
+      : undefined,
     viewport: { width: 1440, height: 1000 },
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure',
