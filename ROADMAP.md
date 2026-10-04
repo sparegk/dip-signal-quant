@@ -1,5 +1,10 @@
 # Roadmap
 
+- [x] EXP-004 dashboard comparisons and separate evidence scorecard
+- [x] Exploratory post-mortem, hypothesis registry and causal archive context foundation
+- [ ] Register an authorized EXP-005 prospective protocol with risk acceptance criteria
+- [ ] Prospective outcome evaluation at the existing review gates
+
 ## Foundation and research progression
 
 - [x] Repository created

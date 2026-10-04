@@ -1,5 +1,19 @@
 # Research log
 
+## 2026-10-04 — Exit dashboard and research diagnosis
+
+- Question: why do dip signals and exit policies behave inconsistently?
+- Action: expose verified EXP-004 comparisons; record then calculate a small
+  exploratory diagnosis on frozen EXP-002 artifacts. No optimization or new universe.
+- Result: ten-bar holding has higher historical EV than selected exits; adaptive
+  tail losses worsen. Recorded repeated-zone visits have unfavorable excess.
+  Volatility increases both rebound scale and downside.
+- Decision: retain all failures; historical patterns generate hypotheses only.
+  Rank ideas in `config/hypotheses.json`, propose two prospective EXP-005 questions.
+- Archive: separate immutable signal-time context; no new genuine prospective
+  records or outcome scoring. Original EXP-003 review gates remain in force.
+- Next: review the proposal and choose risk/acceptance criteria before registration.
+
 Append dated entries in chronological order. Record inconclusive and failed work
 as well as successful results; link experiment IDs and decisions when relevant.
 

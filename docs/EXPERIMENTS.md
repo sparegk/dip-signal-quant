@@ -1,5 +1,10 @@
 # Experiment registry
 
+The [research diagnosis](RESEARCH_DIAGNOSIS.md) is a separate **exploratory
+post-mortem**, not a fifth registered strategy experiment. Its definitions were
+recorded before calculation; all original EXP-001–004 results remain intact.
+The [EXP-005 document](EXP005_PROPOSAL.md) is a proposal only and has not run.
+
 Do not infer performance from implementation tests. Add an entry for every
 significant experiment, including negative results.
 Define splits and selection rules before inspecting the final test period.

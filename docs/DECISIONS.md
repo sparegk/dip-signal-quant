@@ -1,5 +1,20 @@
 # Decisions
 
+## Research diagnosis and prospective-first development
+
+- Keep V1 and EXP-001–004 artifacts/configurations frozen. New consumed-history
+  groups are exploratory, not new strategy selections.
+- Record diagnostic definitions before calculating them (`c07a97a`). Exact
+  component groups, fixed causal bands, complete fold-bounded rebound paths and
+  strictly mature prior support are retained, including unfavorable evidence.
+- Expose EXP-004's higher time-only EV and worse adaptive tail losses prominently.
+  Drawdown stays per ticker; no pooled portfolio or confidence score is invented.
+- Prioritize prospective control comparison and volatility context. EXP-005 is a
+  proposal only; risk budget and registration remain unresolved.
+- Retain additional archive context in immutable sidecars rather than changing
+  original EXP-003 decisions. Future outcomes and unregistered adaptive policies
+  never enter context. Preserve non-events, failures and separate timing seals.
+
 Lightweight architecture decision records. Append new entries when decisions
 change; preserve their context rather than rewriting the research history.
 

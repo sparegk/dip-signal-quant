@@ -132,3 +132,31 @@ apply registered full-window censoring and costs; report collection coverage and
 selection limitations. No rolling performance peeking, favorable optional stopping
 or tuning on the growing holdout is authorized. Further review/extensions require
 new authorization and, where applicable, new prospective registration.
+
+## Additional decision context
+
+After a manual run is sealed, invoke `python -m scripts.archive_context --run-id
+<original-run-id>` before its intended next open. This command is offline and
+uses retained vintages, not refreshed caches. It preserves ATR, volume, momentum,
+weakness, benchmark state, causal SPY regime and mature prior dip-zone context for
+events and non-events. Existing V1 thresholds and input/code/configuration hashes
+stay linked through the original result hash. The scheduled next open is an
+**expected execution opportunity**, not an observed entry fill.
+
+`config/archive_context.json` defines the context. No adaptive exit policy is
+activated: EXP-004 has fold-varying selections, so a single prospective policy
+needs a separate advance registration. Future comparisons must use the exact same
+original prospective signal IDs. No future outcome fields enter this sidecar.
+
+Ignored `contexts/` and `context_receipts/` retain immutable values and separate
+publication seals. Original run bytes never change; retries return original
+context. Changed bytes, parents or input identities fail checks. Corrections use
+explicit new run/version IDs. Interrupted publication without a seal remains
+unverifiable; recovery cannot promote it into the prospective cohort.
+
+Calculation timestamps are actual UTC readings after computation; seal timestamps
+follow publication. `prospective_context` requires an original prospective signal,
+clean code, valid chronology and publication before the next open. Late enrichment
+is `retrospective_context` and never changes the original signal classification.
+Hashes detect alterations relative to retained hashes, not adversarial tampering.
+No genuine prospective record was manufactured for this extension.

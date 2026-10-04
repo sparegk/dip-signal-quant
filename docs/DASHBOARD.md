@@ -1,5 +1,34 @@
 # Quantitative research terminal
 
+## Exit research and diagnosis
+
+**Exit Research** reads verified EXP-004 summaries: V1, training-selected exits,
+ten-bar holding and controls. Independent mode uses the same entries; non-overlap
+mode explicitly uses exit-dependent subsets. Yearly EV, win/loss decomposition,
+tail loss, excursions, recovery diagnostics and separate scorecard measures stay
+visible. There is no combined strategy score.
+
+**Research Diagnosis** presents exploratory groups and timing from frozen
+EXP-002 artifacts. **Hypotheses** reads the structured registry. These pages do
+not change signals or choose parameters. Full methods/tables are optional.
+
+Regenerate with `python -m scripts.diagnose_research`, then
+`python -m scripts.report_research_diagnosis --write-doc`, then
+`python -m scripts.build_dashboard_data`. Outputs stay ignored. Python retains
+all research calculations; raw diagnostic paths are excluded from browser exports.
+
+For browser checks when Edge is unavailable, set `PLAYWRIGHT_BROWSER_EXECUTABLE`
+to an installed Chromium executable before `npm.cmd run test:browser`.
+
+Alternatively, from `frontend/` in PowerShell, keep a test-only browser in the
+ignored project cache:
+
+```powershell
+$env:PLAYWRIGHT_BROWSERS_PATH="$PWD/.playwright"
+npm.cmd exec playwright -- install chromium --only-shell
+npm.cmd run test:browser
+```
+
 ## Reading the site
 
 Start with **Overview → Signal Explorer → Experiments → Robustness**.

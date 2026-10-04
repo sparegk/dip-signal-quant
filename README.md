@@ -1,5 +1,11 @@
 # dip-signal-quant
 
+The local dashboard now includes **Exit Research**, **Research Diagnosis** and
+**Hypotheses**. It shows profit and downside together, including failed criteria
+and negative years. Read [the diagnosis](docs/RESEARCH_DIAGNOSIS.md) and
+[proposed next questions](docs/EXP005_PROPOSAL.md); neither defines a validated new
+strategy. Start the site with the instructions in [DASHBOARD.md](docs/DASHBOARD.md).
+
 Quantitative research into short-term equity dips and mean-reversion opportunities.
 The central question is whether statistically unusual dips and historical bounce
 zones predict repeatable rebounds after realistic costs and out-of-sample testing.
